@@ -3,257 +3,574 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工具箱 - 在线工具集合</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <title>工具箱 - 炫酷在线工具集合</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            /* 深色主题 */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: rgba(255, 255, 255, 0.05);
+            --bg-card: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-color: #667eea;
+            --gradient-start: #667eea;
+            --gradient-mid1: #764ba2;
+            --gradient-mid2: #f093fb;
+            --gradient-mid3: #f5576c;
+            --gradient-end: #4facfe;
+        }
+        
+        [data-theme="light"] {
+            /* 浅色主题 - 现代清新配色 */
+            --bg-primary: #f8fafc;
+            --bg-secondary: rgba(99, 102, 241, 0.08);
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: rgba(99, 102, 241, 0.15);
+            --accent-color: #6366f1;
+            --gradient-start: #6366f1;
+            --gradient-mid1: #8b5cf6;
+            --gradient-mid2: #ec4899;
+            --gradient-mid3: #f43f5e;
+            --gradient-end: #3b82f6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        .hero-section {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-            padding: 80px 0;
-            margin-bottom: 40px;
-            border-radius: 0 0 20px 20px;
+        
+        /* 背景渐变动画 */
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-mid1) 25%, var(--gradient-mid2) 50%, var(--gradient-mid3) 75%, var(--gradient-end) 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
         }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 霓虹光效 */
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5),
+                        0 0 40px rgba(102, 126, 234, 0.3),
+                        0 0 60px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* 光束效果 */
+        .beam {
+            position: absolute;
+            width: 2px;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, #667eea, transparent);
+            animation: beam 3s ease-in-out infinite;
+        }
+        
+        @keyframes beam {
+            0%, 100% { opacity: 0; transform: translateY(-100px); }
+            50% { opacity: 1; transform: translateY(100vh); }
+        }
+        
+        /* 粒子效果 */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
+        }
+        
+        /* 工具卡片动画 */
         .tool-card {
-            transition: transform 0.3s, box-shadow 0.3s;
-            height: 100%;
-            border: none;
-            border-radius: 15px;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
             overflow: hidden;
         }
+        
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .tool-card:hover::before {
+            left: 100%;
+        }
+        
         .tool-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            border-color: var(--accent-color);
         }
-        .tool-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: #2575fc;
+        
+        /* 文字发光效果 */
+        .glow-text {
+            text-shadow: 0 0 5px var(--accent-color),
+                         0 0 10px var(--accent-color),
+                         0 0 15px var(--accent-color);
         }
-        .login-modal .modal-content {
-            border-radius: 15px;
-            border: none;
+        
+        /* 按钮动画 */
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
-        .login-modal .modal-header {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-            border-radius: 15px 15px 0 0;
+        
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
         }
-        .navbar {
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        
+        .btn-glow:hover::before {
+            left: 100%;
         }
-        .user-info {
-            display: none;
+        
+        /* 搜索框动画 */
+        .search-box {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            transition: all 0.3s ease;
         }
-        .user-info.logged-in {
-            display: block;
+        
+        .search-box:focus-within {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 20px var(--accent-color);
         }
-        .login-btn.logged-in {
-            display: none;
+        
+        /* 加载动画 */
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--accent-color);
+            border-top: 3px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-        .footer {
-            margin-top: 50px;
-            padding: 30px 0;
-            background-color: #343a40;
-            color: white;
-            border-radius: 20px 20px 0 0;
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-        .loading-spinner {
-            display: none;
-            text-align: center;
-            padding: 20px;
+        
+        /* 脉冲动画 */
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.7);
+        }
+        
+        /* 浮动图标动画 */
+        .floating-icon {
+            animation: float-icon 3s ease-in-out infinite;
+        }
+        
+        @keyframes float-icon {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
     </style>
 </head>
 <body>
-    <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">
-                <i class="bi bi-tools"></i> 工具箱
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">首页</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#tools">工具</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#about">关于</a>
-                    </li>
-                    <li class="nav-item user-info" id="userInfo">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-person-circle"></i> <span id="username">用户</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <button class="btn btn-outline-primary login-btn" id="loginBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
-                            登录
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- 主页横幅 -->
-    <div class="hero-section">
-        <div class="container text-center">
-            <h1 class="display-4 fw-bold mb-4">在线工具箱</h1>
-            <p class="lead mb-5">一站式解决您的日常工具需求，简单高效，免费使用</p>
-            <a href="#tools" class="btn btn-light btn-lg px-4">
-                <i class="bi bi-arrow-down-circle"></i> 浏览工具
-            </a>
-        </div>
+    <!-- 背景动画效果 -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="beam" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="beam" style="left: 30%; animation-delay: 1s;"></div>
+        <div class="beam" style="left: 50%; animation-delay: 2s;"></div>
+        <div class="beam" style="left: 70%; animation-delay: 0.5s;"></div>
+        <div class="beam" style="left: 90%; animation-delay: 1.5s;"></div>
+        
+        <div class="particle" style="left: 20%; top: 20%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 80%; top: 30%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 50%; top: 60%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 10%; top: 80%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 90%; top: 70%; animation-delay: 4s;"></div>
     </div>
 
-    <!-- 工具列表 -->
-    <div class="container mb-5" id="tools">
-        <h2 class="text-center mb-5">工具列表</h2>
-        
-        <!-- 搜索框 -->
-        <div class="row mb-4">
-            <div class="col-md-8 mx-auto">
-                <div class="input-group">
-                    <span class="input-group-text bg-primary text-white">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="text" class="form-control" id="toolSearch" placeholder="搜索工具名称或描述...">
-                    <button class="btn btn-outline-secondary" type="button" id="clearSearch">
-                        <i class="bi bi-x-circle"></i>
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-20 backdrop-blur-lg border-b border-white border-opacity-10">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-tools text-white text-sm"></i>
+                    </div>
+                    <span class="text-xl font-bold glow-text">工具箱</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-white hover:text-purple-400 transition-colors duration-300">首页</a>
+                    <a href="#tools" class="text-white hover:text-purple-400 transition-colors duration-300">工具</a>
+                    <a href="#about" class="text-white hover:text-purple-400 transition-colors duration-300">关于</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- 主题切换按钮 -->
+                    <button id="themeToggle" class="p-2 rounded-full bg-gray-600 bg-opacity-20 hover:bg-opacity-30 transition-all duration-300 backdrop-blur-sm border border-gray-300 border-opacity-30" title="切换主题">
+                        <i class="fas fa-moon text-gray-700" id="themeIcon"></i>
+                    </button>
+                    
+                    <div class="user-info hidden" id="userInfo">
+                        <span class="text-white text-sm">
+                            <i class="fas fa-user-circle mr-1"></i>
+                            <span id="username">用户</span>
+                        </span>
+                    </div>
+                    <button class="login-btn bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 btn-glow" id="loginBtn">
+                        登录
                     </button>
                 </div>
             </div>
         </div>
-        
-        <div class="loading-spinner" id="loadingSpinner">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">加载中...</span>
-            </div>
-            <p class="mt-2">正在加载工具列表...</p>
-        </div>
-        
-        <div class="row g-4" id="toolsList">
-            <!-- 工具卡片将通过JavaScript动态加载 -->
-        </div>
-        
-        <div id="noResults" class="text-center mt-4 d-none">
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle"></i> 没有找到匹配的工具
-            </div>
-        </div>
-    </div>
+    </nav>
 
-    <!-- 关于部分 -->
-    <div class="container mb-5" id="about">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h2 class="mb-4">关于工具箱</h2>
-                <p>我们的工具箱网站致力于为用户提供各种实用的小工具，帮助您提高工作效率，简化日常任务。</p>
-                <p>所有工具均为免费使用，无需注册即可访问大部分功能。登录后可享受更多高级功能。</p>
-                <div class="d-flex mt-4">
-                    <div class="me-4">
-                        <h4><i class="bi bi-lightning-charge text-primary"></i></h4>
-                        <p>快速高效</p>
+    <!-- 主要内容 -->
+    <main class="min-h-screen">
+        <!-- Hero Section -->
+        <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+            <div class="absolute inset-0 gradient-bg opacity-20"></div>
+            
+            <div class="relative z-10 text-center px-6">
+                <div class="mb-8">
+                    <h1 class="text-6xl md:text-8xl font-bold mb-6 glow-text">
+                        <span class="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                            工具箱
+                        </span>
+                    </h1>
+                    <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto" style="color: var(--text-secondary)">
+                        炫酷的在线工具集合，让您的日常工作变得充满科技感
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <a href="#tools" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 btn-glow neon-glow pulse">
+                            <i class="fas fa-rocket mr-2"></i>
+                            开始探索
+                        </a>
+                        <a href="#about" class="bg-transparent border-2 border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            了解更多
+                        </a>
                     </div>
-                    <div class="me-4">
-                        <h4><i class="bi bi-shield-check text-primary"></i></h4>
-                        <p>安全可靠</p>
+                </div>
+                
+                <!-- 浮动图标 -->
+                <div class="flex justify-center space-x-8 mt-16">
+                    <div class="floating-icon">
+                        <i class="fas fa-code text-4xl text-purple-400 opacity-60"></i>
                     </div>
+                    <div class="floating-icon" style="animation-delay: 0.5s;">
+                        <i class="fas fa-palette text-4xl text-pink-400 opacity-60"></i>
+                    </div>
+                    <div class="floating-icon" style="animation-delay: 1s;">
+                        <i class="fas fa-magic text-4xl text-blue-400 opacity-60"></i>
+                    </div>
+                    <div class="floating-icon" style="animation-delay: 1.5s;">
+                        <i class="fas fa-bolt text-4xl text-yellow-400 opacity-60"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 工具列表 -->
+        <section id="tools" class="py-20 px-6">
+            <div class="container mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                        <span class="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                            炫酷工具集合
+                        </span>
+                    </h2>
+                    <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                        探索我们精心设计的工具，每一个都充满了现代感和科技感
+                    </p>
+                </div>
+                
+                <!-- 搜索框 -->
+                <div class="max-w-2xl mx-auto mb-12">
+                    <div class="search-box flex items-center">
+                        <i class="fas fa-search text-gray-400 mr-4"></i>
+                        <input type="text" id="toolSearch" placeholder="搜索工具名称或描述..." 
+                               class="bg-transparent border-none outline-none text-white placeholder-gray-400 flex-1">
+                        <button id="clearSearch" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 加载动画 -->
+                <div id="loadingSpinner" class="flex flex-col items-center justify-center py-12 hidden">
+                    <div class="loader mb-4"></div>
+                    <p class="text-gray-300">正在加载工具列表...</p>
+                </div>
+                
+                <!-- 工具网格 -->
+                <div id="toolsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 工具卡片将通过JavaScript动态加载 -->
+                </div>
+                
+                <!-- 无结果提示 -->
+                <div id="noResults" class="text-center py-12 hidden">
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 bg-opacity-20 rounded-2xl p-8 border border-purple-500 border-opacity-30">
+                        <i class="fas fa-search text-4xl text-purple-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-white mb-2">没有找到匹配的工具</h3>
+                        <p class="text-gray-300">试试其他关键词吧</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 关于部分 -->
+        <section id="about" class="py-20 px-6">
+            <div class="container mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div>
-                        <h4><i class="bi bi-phone text-primary"></i></h4>
-                        <p>多端适配</p>
+                        <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                            <span class="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                                关于工具箱
+                            </span>
+                        </h2>
+                        <p class="text-xl text-gray-300 mb-6">
+                            我们致力于打造最具科技感的在线工具平台，让每一个工具都充满现代感和设计感。
+                        </p>
+                        <p class="text-lg text-gray-400 mb-8">
+                            所有工具免费使用，无需注册即可体验完整功能。我们相信，好的工具应该让工作变得更有趣。
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-bolt text-white text-2xl"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-white mb-2">快速高效</h3>
+                                <p class="text-gray-400 text-sm">优化的算法，闪电般的响应速度</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-shield-alt text-white text-2xl"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-white mb-2">安全可靠</h3>
+                                <p class="text-gray-400 text-sm">本地处理，保护您的隐私安全</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-mobile-alt text-white text-2xl"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-white mb-2">多端适配</h3>
+                                <p class="text-gray-400 text-sm">完美适配各种设备和屏幕</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-center">
+                        <div class="relative">
+                            <div class="w-80 h-80 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center neon-glow">
+                                <i class="fas fa-tools text-white text-8xl"></i>
+                            </div>
+                            <div class="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center neon-glow">
+                                <i class="fas fa-rocket text-white text-xl"></i>
+                            </div>
+                            <div class="absolute -bottom-4 -left-4 w-16 h-16 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center neon-glow">
+                                <i class="fas fa-star text-white text-xl"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="bg-light p-5 rounded text-center">
-                    <i class="bi bi-tools" style="font-size: 5rem; color: #6a11cb;"></i>
-                    <h4 class="mt-3">一站式工具平台</h4>
-                </div>
-            </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <!-- 页脚 -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5>工具箱</h5>
-                    <p>一站式在线工具集合平台，为您提供便捷高效的工具服务。</p>
+    <footer class="bg-black bg-opacity-50 backdrop-blur-lg border-t border-white border-opacity-10 py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tools text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold glow-text">工具箱</span>
+                    </div>
+                    <p class="text-gray-400">
+                        炫酷的在线工具集合平台，为您提供便捷高效的工具服务。
+                    </p>
                 </div>
-                <div class="col-md-4 mb-4">
-                    <h5>快速链接</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#" class="text-white text-decoration-none">首页</a></li>
-                        <li class="mb-2"><a href="#tools" class="text-white text-decoration-none">工具</a></li>
-                        <li class="mb-2"><a href="#about" class="text-white text-decoration-none">关于</a></li>
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">首页</a></li>
+                        <li><a href="#tools" class="text-gray-400 hover:text-white transition-colors duration-300">工具</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-white transition-colors duration-300">关于</a></li>
                     </ul>
                 </div>
-                <div class="col-md-4 mb-4">
-                    <h5>联系我们</h5>
-                    <p>邮箱: contact@toolbox.com</p>
-                    <div class="d-flex">
-                        <a href="#" class="text-white me-3"><i class="bi bi-github"></i></a>
-                        <a href="#" class="text-white me-3"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-white"><i class="bi bi-linkedin"></i></a>
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-4">联系我们</h3>
+                    <p class="text-gray-400 mb-4">邮箱: contact@toolbox.com</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform duration-300">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform duration-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform duration-300">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
                     </div>
                 </div>
             </div>
-            <hr class="my-4 bg-white">
-            <div class="text-center">
-                <p class="mb-0">&copy; 2023 工具箱. 保留所有权利.</p>
+            <div class="border-t border-white border-opacity-10 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2023 工具箱. 保留所有权利.</p>
             </div>
         </div>
     </footer>
 
     <!-- 登录模态框 -->
-    <div class="modal fade login-modal" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="loginModalLabel">用户登录</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="password" class="form-label">密码</label>
-                        <input type="password" class="form-control" id="password" placeholder="请输入密码">
-                        <div class="form-text">提示: 默认密码为 187187187</div>
-                    </div>
-                    <div id="loginError" class="alert alert-danger d-none" role="alert">
-                        密码错误，请重试！
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" id="loginSubmit">登录</button>
-                </div>
+    <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 hidden" id="loginModal">
+        <div class="bg-gray-900 rounded-2xl p-8 m-4 w-full max-w-md border border-purple-500 border-opacity-30 neon-glow">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-white">用户登录</h3>
+                <button class="text-gray-400 hover:text-white transition-colors" id="closeModal">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <label for="password" class="block text-sm font-medium text-gray-300 mb-2">密码</label>
+                <input type="password" id="password" placeholder="请输入密码" 
+                       class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50">
+                <p class="text-sm text-gray-400 mt-2">提示: 默认密码为 187187187</p>
+            </div>
+            
+            <div id="loginError" class="hidden mb-4 p-4 bg-red-500 bg-opacity-20 border border-red-500 border-opacity-50 rounded-lg">
+                <p class="text-red-400 text-sm">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    密码错误，请重试！
+                </p>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-colors duration-300" id="cancelLogin">
+                    取消
+                </button>
+                <button class="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 px-6 rounded-lg font-medium transition-all duration-300 btn-glow" id="loginSubmit">
+                    登录
+                </button>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // 工具图标映射
+        const toolIcons = {
+            'HTML转图片': 'fas fa-image',
+            'JSON格式化': 'fas fa-code',
+            'Base64编码/解码': 'fas fa-exchange-alt',
+            '正则表达式测试': 'fas fa-search',
+            'URL编码/解码': 'fas fa-link',
+            '哈希计算': 'fas fa-shield-alt',
+            '时间戳转换': 'fas fa-clock',
+            'UUID生成器': 'fas fa-key',
+            '颜色选择器': 'fas fa-palette'
+        };
+
+        // 工具颜色映射
+        const toolColors = {
+            'HTML转图片': 'from-purple-500 to-pink-500',
+            'JSON格式化': 'from-blue-500 to-cyan-500',
+            'Base64编码/解码': 'from-green-500 to-teal-500',
+            '正则表达式测试': 'from-yellow-500 to-orange-500',
+            'URL编码/解码': 'from-red-500 to-pink-500',
+            '哈希计算': 'from-indigo-500 to-purple-500',
+            '时间戳转换': 'from-gray-500 to-gray-600',
+            'UUID生成器': 'from-teal-500 to-green-500',
+            '颜色选择器': 'from-pink-500 to-rose-500'
+        };
+
         document.addEventListener('DOMContentLoaded', function() {
             // 检查登录状态
             const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             if (isLoggedIn) {
-                document.getElementById('userInfo').classList.add('logged-in');
-                document.getElementById('loginBtn').classList.add('logged-in');
+                document.getElementById('userInfo').classList.remove('hidden');
+                document.getElementById('loginBtn').classList.add('hidden');
             }
 
             // 登录功能
+            document.getElementById('loginBtn').addEventListener('click', function() {
+                document.getElementById('loginModal').classList.remove('hidden');
+            });
+
+            // 关闭模态框
+            document.getElementById('closeModal').addEventListener('click', function() {
+                document.getElementById('loginModal').classList.add('hidden');
+            });
+
+            document.getElementById('cancelLogin').addEventListener('click', function() {
+                document.getElementById('loginModal').classList.add('hidden');
+            });
+
+            // 登录提交
             document.getElementById('loginSubmit').addEventListener('click', function() {
                 const password = document.getElementById('password').value;
                 const loginError = document.getElementById('loginError');
@@ -261,19 +578,18 @@
                 if (password === '187187187') {
                     // 登录成功
                     localStorage.setItem('isLoggedIn', 'true');
-                    document.getElementById('userInfo').classList.add('logged-in');
-                    document.getElementById('loginBtn').classList.add('logged-in');
+                    document.getElementById('userInfo').classList.remove('hidden');
+                    document.getElementById('loginBtn').classList.add('hidden');
                     
                     // 关闭模态框
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-                    modal.hide();
+                    document.getElementById('loginModal').classList.add('hidden');
                     
                     // 清空密码输入框
                     document.getElementById('password').value = '';
-                    loginError.classList.add('d-none');
+                    loginError.classList.add('hidden');
                 } else {
                     // 登录失败
-                    loginError.classList.remove('d-none');
+                    loginError.classList.remove('hidden');
                 }
             });
 
@@ -290,14 +606,14 @@
             const noResults = document.getElementById('noResults');
             
             // 显示加载动画
-            loadingSpinner.style.display = 'block';
+            loadingSpinner.classList.remove('hidden');
             
             // 从后端API获取工具列表
             fetch('/api/tools')
                 .then(response => response.json())
                 .then(data => {
                     // 隐藏加载动画
-                    loadingSpinner.style.display = 'none';
+                    loadingSpinner.classList.add('hidden');
                     
                     if (data.success && data.data) {
                         // 存储原始工具数据
@@ -330,15 +646,15 @@
                         });
                     } else {
                         // 处理错误情况
-                        toolsList.innerHTML = '<div class="col-12 text-center"><p class="text-danger">加载工具列表失败，请稍后重试。</p></div>';
+                        toolsList.innerHTML = '<div class="col-12 text-center"><p class="text-red-400">加载工具列表失败，请稍后重试。</p></div>';
                     }
                 })
                 .catch(error => {
                     console.error('Error loading tools:', error);
                     // 隐藏加载动画
-                    loadingSpinner.style.display = 'none';
+                    loadingSpinner.classList.add('hidden');
                     // 显示错误信息
-                    toolsList.innerHTML = '<div class="col-12 text-center"><p class="text-danger">网络错误，请检查您的连接并重试。</p></div>';
+                    toolsList.innerHTML = '<div class="col-12 text-center"><p class="text-red-400">网络错误，请检查您的连接并重试。</p></div>';
                 });
         }
         
@@ -351,35 +667,71 @@
             toolsList.innerHTML = '';
             
             // 隐藏无结果提示
-            noResults.classList.add('d-none');
+            noResults.classList.add('hidden');
             
             if (tools.length === 0) {
                 // 显示无结果提示
-                noResults.classList.remove('d-none');
+                noResults.classList.remove('hidden');
                 return;
             }
             
             // 添加工具卡片
             tools.forEach(tool => {
                 const toolCard = document.createElement('div');
-                toolCard.className = 'col-md-6 col-lg-4';
+                const iconClass = toolIcons[tool.name] || 'fas fa-tools';
+                const colorClass = toolColors[tool.name] || 'from-purple-500 to-pink-500';
+                
+                toolCard.className = 'tool-card group cursor-pointer';
                 toolCard.innerHTML = `
-                    <div class="card tool-card h-100">
-                        <div class="card-body text-center p-4">
-                            <div class="tool-icon">
-                                <i class="bi ${tool.icon}"></i>
-                            </div>
-                            <h5 class="card-title">${tool.name}</h5>
-                            <p class="card-text">${tool.description}</p>
-                            <a href="${tool.url}" class="btn btn-primary mt-2">
-                                使用工具 <i class="bi bi-arrow-right"></i>
-                            </a>
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-gradient-to-r ${colorClass} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 neon-glow">
+                            <i class="${iconClass} text-white text-3xl"></i>
                         </div>
+                        <h3 class="text-xl font-semibold mb-3" style="color: var(--text-primary)">${tool.name}</h3>
+                        <p class="mb-6 leading-relaxed" style="color: var(--text-secondary)">${tool.description}</p>
+                        <a href="${tool.url}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r ${colorClass} text-white rounded-full font-medium transition-all duration-300 btn-glow group-hover:scale-105">
+                            使用工具
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
                     </div>
                 `;
                 toolsList.appendChild(toolCard);
             });
         }
+        
+        // 主题切换功能
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const body = document.body;
+        
+        // 从本地存储加载主题设置
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            body.setAttribute('data-theme', 'light');
+            themeIcon.className = 'fas fa-sun text-yellow-500';
+            themeToggle.className = 'p-2 rounded-full bg-yellow-100 bg-opacity-50 hover:bg-opacity-70 transition-all duration-300 backdrop-blur-sm border border-yellow-300 border-opacity-50';
+        }
+        
+        // 主题切换事件
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            // 切换主题
+            body.setAttribute('data-theme', newTheme);
+            
+            // 更新图标和按钮样式
+            if (newTheme === 'light') {
+                themeIcon.className = 'fas fa-sun text-yellow-500';
+                themeToggle.className = 'p-2 rounded-full bg-yellow-100 bg-opacity-50 hover:bg-opacity-70 transition-all duration-300 backdrop-blur-sm border border-yellow-300 border-opacity-50';
+            } else {
+                themeIcon.className = 'fas fa-moon text-white';
+                themeToggle.className = 'p-2 rounded-full bg-gray-700 bg-opacity-50 hover:bg-opacity-70 transition-all duration-300';
+            }
+            
+            // 保存到本地存储
+            localStorage.setItem('theme', newTheme);
+        });
     </script>
 </body>
 </html>

@@ -3,313 +3,539 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML转图片工具 - 精确版</title>
+    <title>HTML转图片工具 - 炫酷工具箱</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{
-            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-            min-height:100vh;padding:20px;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            /* 深色主题 */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: rgba(255, 255, 255, 0.05);
+            --bg-card: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-color: #667eea;
         }
-        .container{
-            max-width:1200px;margin:0 auto;background:#fff;border-radius:20px;
-            box-shadow:0 20px 40px rgba(0,0,0,.1);overflow:hidden;
+        
+        [data-theme="light"] {
+            /* 浅色主题 - 现代清新配色 */
+            --bg-primary: #f8fafc;
+            --bg-secondary: rgba(99, 102, 241, 0.08);
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: rgba(99, 102, 241, 0.15);
+            --accent-color: #6366f1;
         }
-        .header{
-            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-            color:#fff;padding:30px;text-align:center;
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .header h1{font-size:2.5rem;margin-bottom:10px}
-        .header p{font-size:1.1rem;opacity:.9}
-        .main-content{padding:40px}
-        .input-section{margin-bottom:30px}
-        .section-title{
-            font-size:1.3rem;color:#333;margin-bottom:15px;
-            display:flex;align-items:center;gap:10px;
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        .section-title::before{
-            content:'';width:4px;height:20px;background:#667eea;border-radius:2px;
+        
+        /* 背景动画 */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
         }
-        .html-input{
-            width:100%;min-height:300px;padding:20px;border:2px solid #e0e0e0;
-            border-radius:10px;font-family:Consolas,Monaco,"Courier New",monospace;
-            font-size:14px;line-height:1.6;resize:vertical;transition:border-color .3s;
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        .html-input:focus{outline:none;border-color:#667eea}
-        .controls{display:flex;gap:15px;margin-bottom:30px;flex-wrap:wrap}
-        .btn{
-            padding:12px 30px;border:none;border-radius:8px;font-size:16px;font-weight:500;
-            cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:8px;
+        
+        /* 霓虹光效 */
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5),
+                        0 0 40px rgba(102, 126, 234, 0.3),
+                        0 0 60px rgba(102, 126, 234, 0.1);
         }
-        .btn-primary{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff}
-        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,.4)}
-        .btn-secondary{background:#f5f5f5;color:#333}
-        .btn-secondary:hover{background:#e8e8e8}
-        .btn:disabled{opacity:.6;cursor:not-allowed}
-        .preview-section{margin-bottom:30px}
-        .preview-container{
-            background:#f8f9fa;border-radius:10px;padding:20px;min-height:200px;
-            display:flex;justify-content:center;align-items:center;position:relative;overflow:hidden;
+        
+        /* 光束效果 */
+        .beam {
+            position: absolute;
+            width: 2px;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, #667eea, transparent);
+            animation: beam 3s ease-in-out infinite;
         }
-        .preview-content{background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.1);max-width:100%;width:100%}
-        .preview-placeholder{color:#999;font-size:18px}
-        .options-section{background:#f8f9fa;border-radius:10px;padding:20px;margin-bottom:30px}
-        .options-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
-        .option-group{display:flex;flex-direction:column;gap:8px}
-        .option-label{font-weight:500;color:#555}
-        .option-input{padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px}
-        .notification{
-            position:fixed;top:20px;right:20px;padding:15px 25px;background:#fff;
-            border-radius:8px;box-shadow:0 5px 20px rgba(0,0,0,.1);display:flex;align-items:center;gap:10px;
-            transform:translateX(400px);transition:transform .3s;z-index:1000;
+        
+        @keyframes beam {
+            0%, 100% { opacity: 0; transform: translateY(-100px); }
+            50% { opacity: 1; transform: translateY(100vh); }
         }
-        .notification.show{transform:translateX(0)}
-        .notification.success{border-left:4px solid #4caf50}
-        .notification.error{border-left:4px solid #f44336}
-        .loading{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
-        .loading.show{display:block}
-        .spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid #667eea;border-radius:50%;animation:spin 1s linear infinite}
-        @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-        iframe{width:100%;border:none;display:block}
-        .dimension-display{background:#f0f7ff;padding:10px 15px;border-radius:6px;font-family:monospace;color:#333;margin-top:5px}
-        .footer{background:#f8f9fa;padding:20px;text-align:center;color:#666;font-size:14px}
-        @media(max-width:768px){
-            .header h1{font-size:2rem}
-            .main-content{padding:20px}
-            .controls{flex-direction:column}
-            .btn{width:100%;justify-content:center}
+        
+        /* 粒子效果 */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
+        }
+        
+        /* 工具卡片 */
+        .tool-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .tool-card:hover::before {
+            left: 100%;
+        }
+        
+        /* 文字发光效果 */
+        .glow-text {
+            text-shadow: 0 0 5px rgba(102, 126, 234, 0.6),
+                         0 0 10px rgba(102, 126, 234, 0.4),
+                         0 0 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        /* 按钮动画 */
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-glow:hover::before {
+            left: 100%;
+        }
+        
+        /* 输入框样式 */
+        .fancy-input {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1rem;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .fancy-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 20px var(--accent-color);
+            outline: none;
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.7);
+        }
+        
+        /* 预览区域 */
+        .preview-area {
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .preview-area.has-content {
+            border-style: solid;
+            border-color: rgba(102, 126, 234, 0.5);
+            background: rgba(102, 126, 234, 0.1);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>HTML转图片工具·精确版</h1>
-            <p>预览与生成完全一致，使用 iframe 沙箱渲染</p>
-        </div>
-
-        <div class="main-content">
-            <div class="input-section">
-                <h2 class="section-title">① 输入HTML代码</h2>
-                <textarea id="htmlInput" class="html-input" placeholder="在此粘贴您的HTML代码..."><!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body{
-            margin:0;
-            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            min-height:100vh;
-            padding:20px;
-        }
-        .card{
-            background:#fff;
-            border-radius:16px;
-            padding:40px 32px;
-            width:360px;
-            text-align:center;
-            box-shadow:0 10px 30px rgba(0,0,0,.15);
-        }
-        .card h1{color:#333;font-size:24px;margin-bottom:12px}
-        .card p{color:#666;line-height:1.6;margin-bottom:24px}
-        .btn{
-            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-            color:#fff;border:none;padding:12px 28px;border-radius:24px;font-size:16px;cursor:pointer;
-        }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h1>预览 = 生成</h1>
-        <p>iframe 沙箱保证渲染一致性，自动计算尺寸，不再错位。</p>
-        <button class="btn">立即体验</button>
+    <!-- 背景动画效果 -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="beam" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="beam" style="left: 30%; animation-delay: 1s;"></div>
+        <div class="beam" style="left: 50%; animation-delay: 2s;"></div>
+        <div class="beam" style="left: 70%; animation-delay: 0.5s;"></div>
+        <div class="beam" style="left: 90%; animation-delay: 1.5s;"></div>
+        
+        <div class="particle" style="left: 20%; top: 20%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 80%; top: 30%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 50%; top: 60%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 10%; top: 80%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 90%; top: 70%; animation-delay: 4s;"></div>
     </div>
-</body>
-</html></textarea>
-            </div>
 
-            <div class="options-section">
-                <h2 class="section-title">② 选项</h2>
-                <div class="options-grid">
-                    <div class="option-group">
-                        <label class="option-label">图片格式</label>
-                        <select id="imageFormat" class="option-input">
-                            <option value="png">PNG</option>
-                            <option value="jpeg">JPEG</option>
-                            <option value="webp">WebP</option>
-                        </select>
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-20 backdrop-blur-lg border-b border-white border-opacity-10">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-tools text-white text-sm"></i>
                     </div>
-                    <div class="option-group">
-                        <label class="option-label">图片质量</label>
-                        <input type="range" id="imageQuality" class="option-input" min="0.1" max="1" step="0.1" value="0.9">
-                        <span id="qualityValue">90%</span>
-                    </div>
-                    <div class="option-group">
-                        <label class="option-label">缩放比例</label>
-                        <select id="scaleRatio" class="option-input">
-                            <option value="1">1×（标准）</option>
-                            <option value="2" selected>2×（高清）</option>
-                            <option value="3">3×（超清）</option>
-                        </select>
-                    </div>
-                    <div class="option-group">
-                        <label class="option-label">背景模式</label>
-                        <select id="backgroundMode" class="option-input">
-                            <option value="transparent">透明</option>
-                            <option value="white">白色</option>
-                            <option value="auto">自动检测</option>
-                        </select>
-                    </div>
+                    <span class="text-xl font-bold glow-text">工具箱</span>
                 </div>
-                <div id="sizeInfo" class="dimension-display" style="margin-top:10px;display:none;">检测尺寸：<span id="sizeText">-</span></div>
-            </div>
-
-            <div class="controls">
-                <button id="previewBtn" class="btn btn-secondary"><span>👁️</span>预览效果</button>
-                <button id="convertBtn" class="btn btn-primary"><span>🖼️</span>生成图片</button>
-                <button id="downloadBtn" class="btn btn-primary" disabled><span>💾</span>下载图片</button>
-                <button id="resetBtn" class="btn btn-secondary"><span>🔄</span>重置</button>
-            </div>
-
-            <div class="preview-section">
-                <h2 class="section-title">③ 预览（与生成完全一致）</h2>
-                <div class="preview-container">
-                    <div id="previewContent" class="preview-content">
-                        <div class="preview-placeholder">点击“预览效果”查看iframe渲染结果</div>
-                    </div>
-                    <div id="loading" class="loading"><div class="spinner"></div></div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- 主题切换按钮 -->
+                    <button id="themeToggle" class="p-2 rounded-full bg-gray-600 bg-opacity-20 hover:bg-opacity-30 transition-all duration-300 backdrop-blur-sm border border-gray-300 border-opacity-30" title="切换主题">
+                        <i class="fas fa-moon text-gray-700" id="themeIcon"></i>
+                    </button>
+                    <a href="/" class="text-white hover:text-purple-400 transition-colors duration-300">
+                        <i class="fas fa-arrow-left mr-2"></i>返回主页
+                    </a>
                 </div>
             </div>
         </div>
+    </nav>
 
-        <div class="footer">
-            <p>HTML转图片工具·精确版 | 预览即所得 | 隐私保护 - 全部本地处理</p>
+    <!-- 主要内容 -->
+    <main class="min-h-screen pt-20">
+        <div class="container mx-auto px-6 py-12">
+            <!-- 头部 -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl mb-6 neon-glow">
+                    <i class="fas fa-image text-white text-3xl"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 glow-text">
+                    <span class="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                        HTML转图片工具
+                    </span>
+                </h1>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    将HTML代码转换为高质量图片格式，支持自定义尺寸和样式
+                </p>
+            </div>
+
+            <!-- 工具主体 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 输入区域 -->
+                <div class="space-y-6">
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold text-white mb-4 flex items-center justify-between">
+                            <span class="flex items-center">
+                                <i class="fas fa-code text-purple-400 mr-3"></i>
+                                HTML代码输入
+                            </span>
+                            <button id="pasteBtn" 
+                                    class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300 text-sm flex items-center"
+                                    title="从剪切板粘贴">
+                                <i class="fas fa-paste mr-2"></i>
+                                粘贴
+                            </button>
+                        </h3>
+                        <textarea id="htmlInput" 
+                                  class="fancy-input w-full h-64 resize-none" 
+                                  placeholder="在此输入您的HTML代码..."></textarea>
+                        
+                        <!-- 设置选项 -->
+                        <div class="grid grid-cols-2 gap-4 mt-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">宽度</label>
+                                <input type="number" id="widthInput" value="800" min="100" max="2000" 
+                                       class="fancy-input w-full px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">高度设置</label>
+                                <select id="heightMode" class="fancy-input w-full px-3 py-2">
+                                    <option value="auto">自适应高度</option>
+                                    <option value="fixed">固定高度</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="fixedHeightGroup" class="mt-4" style="display: none;">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">固定高度</label>
+                            <input type="number" id="heightInput" value="600" min="100" max="2000" 
+                                   class="fancy-input w-full px-3 py-2">
+                        </div>
+                        
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">背景颜色</label>
+                            <input type="color" id="bgColorInput" value="#ffffff" 
+                                   class="fancy-input w-full h-12 cursor-pointer">
+                        </div>
+                        
+                        <button id="convertBtn" 
+                                class="w-full mt-6 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 btn-glow neon-glow">
+                            <i class="fas fa-magic mr-2"></i>
+                            转换为图片
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 预览区域 -->
+                <div class="space-y-6">
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                            <i class="fas fa-eye text-blue-400 mr-3"></i>
+                            图片预览
+                        </h3>
+                        <div id="previewArea" class="preview-area">
+                            <div class="text-center text-gray-400">
+                                <i class="fas fa-image text-6xl mb-4 opacity-50"></i>
+                                <p>转换后的图片将在这里显示</p>
+                            </div>
+                        </div>
+                        
+                        <div id="downloadSection" class="hidden mt-6">
+                            <button id="downloadBtn" 
+                                    class="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 btn-glow">
+                                <i class="fas fa-download mr-2"></i>
+                                下载图片
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 使用说明 -->
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                            <i class="fas fa-info-circle text-yellow-400 mr-3"></i>
+                            使用说明
+                        </h3>
+                        <ul class="space-y-2 text-gray-300">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-400 mr-3 mt-1"></i>
+                                <span>在左侧输入框中输入有效的HTML代码</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-400 mr-3 mt-1"></i>
+                                <span>设置图片的宽度、高度和背景颜色</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-400 mr-3 mt-1"></i>
+                                <span>点击"转换为图片"按钮生成预览</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-400 mr-3 mt-1"></i>
+                                <span>满意后点击"下载图片"保存到本地</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <div id="notification" class="notification"><span id="notificationText"></span></div>
+    </main>
 
     <script>
-        let currentImageData=null,html2canvasLoaded=false,lastSize={w:0,h:0};
-
-        /* === 初始化 === */
-        document.addEventListener('DOMContentLoaded',()=>{
-            loadHtml2Canvas();
-            setupHandlers();
-            updateQualityDisplay();
+        // HTML转图片功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const htmlInput = document.getElementById('htmlInput');
+            const pasteBtn = document.getElementById('pasteBtn');
+            const widthInput = document.getElementById('widthInput');
+            const heightInput = document.getElementById('heightInput');
+            const heightMode = document.getElementById('heightMode');
+            const fixedHeightGroup = document.getElementById('fixedHeightGroup');
+            const bgColorInput = document.getElementById('bgColorInput');
+            const convertBtn = document.getElementById('convertBtn');
+            const previewArea = document.getElementById('previewArea');
+            const downloadSection = document.getElementById('downloadSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            let generatedImage = null;
+            
+            // 高度模式切换
+            heightMode.addEventListener('change', function() {
+                if (this.value === 'fixed') {
+                    fixedHeightGroup.style.display = 'block';
+                } else {
+                    fixedHeightGroup.style.display = 'none';
+                }
+            });
+            
+            // 剪切板粘贴功能
+            pasteBtn.addEventListener('click', async function() {
+                try {
+                    // 检查浏览器是否支持Clipboard API
+                    if (!navigator.clipboard) {
+                        alert('您的浏览器不支持剪切板功能');
+                        return;
+                    }
+                    
+                    // 从剪切板读取文本
+                    const text = await navigator.clipboard.readText();
+                    
+                    if (text) {
+                        // 简单检查是否是HTML内容
+                        if (text.includes('<') && text.includes('>')) {
+                            htmlInput.value = text;
+                            // 可选：自动触发转换
+                            // convertBtn.click();
+                        } else {
+                            // 如果不是HTML，提示用户
+                            const confirmResult = confirm('剪切板内容似乎不是HTML代码，是否仍要粘贴？');
+                            if (confirmResult) {
+                                htmlInput.value = text;
+                            }
+                        }
+                    } else {
+                        alert('剪切板为空');
+                    }
+                } catch (err) {
+                    console.error('读取剪切板失败:', err);
+                    alert('读取剪切板失败，请检查浏览器权限设置');
+                }
+            });
+            
+            // 转换功能
+            convertBtn.addEventListener('click', async function() {
+                const html = htmlInput.value.trim();
+                if (!html) {
+                    alert('请输入HTML代码');
+                    return;
+                }
+                
+                try {
+                    const width = parseInt(widthInput.value);
+                    const bgColor = bgColorInput.value;
+                    
+                    // 创建临时容器来渲染HTML
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    tempDiv.style.position = 'absolute';
+                    tempDiv.style.left = '-9999px';
+                    tempDiv.style.top = '-9999px';
+                    tempDiv.style.width = width + 'px';
+                    tempDiv.style.backgroundColor = bgColor;
+                    tempDiv.style.padding = '20px';
+                    tempDiv.style.boxSizing = 'border-box';
+                    tempDiv.style.fontFamily = 'Arial, sans-serif';
+                    
+                    document.body.appendChild(tempDiv);
+                    
+                    // 使用html2canvas进行转换
+                    const canvas = await html2canvas(tempDiv, {
+                        width: width,
+                        height: heightMode.value === 'auto' ? tempDiv.scrollHeight : parseInt(heightInput.value),
+                        backgroundColor: bgColor,
+                        scale: 2, // 提高图片质量
+                        useCORS: true,
+                        allowTaint: true
+                    });
+                    
+                    // 清理临时元素
+                    document.body.removeChild(tempDiv);
+                    
+                    // 显示预览
+                    const imageData = canvas.toDataURL('image/png');
+                    previewArea.innerHTML = `<img src="${imageData}" class="max-w-full h-auto rounded-lg">`;
+                    previewArea.classList.add('has-content');
+                    
+                    generatedImage = imageData;
+                    downloadSection.classList.remove('hidden');
+                    
+                } catch (error) {
+                    console.error('转换失败:', error);
+                    alert('转换失败，请检查HTML代码是否正确');
+                }
+            });
+            
+            // 下载功能
+            downloadBtn.addEventListener('click', function() {
+                if (generatedImage) {
+                    const link = document.createElement('a');
+                    link.download = 'html-to-image.png';
+                    link.href = generatedImage;
+                    link.click();
+                }
+            });
+            
+            // 示例代码
+            htmlInput.value = `<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
+    <h1 style="color: #333;">Hello World!</h1>
+    <p style="color: #666;">这是一个HTML转图片的示例</p>
+    <div style="background: #f0f0f0; padding: 10px; border-radius: 5px; margin: 10px 0;">
+        <strong>支持各种HTML元素</strong>
+    </div>
+</div>`;
         });
-
-        /* === 加载 html2canvas === */
-        function loadHtml2Canvas(){
-            const s=document.createElement('script');
-            s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-            s.onload=()=>{html2canvasLoaded=true;showNotification('html2canvas 已加载','success')};
-            s.onerror=()=>showNotification('html2canvas 加载失败','error');
-            document.head.appendChild(s);
+        
+        // 主题切换功能
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const body = document.body;
+        
+        // 从本地存储加载主题设置
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            body.setAttribute('data-theme', 'light');
+            themeIcon.className = 'fas fa-sun text-yellow-400';
         }
-
-        /* === 事件绑定 === */
-        function setupHandlers(){
-            document.getElementById('previewBtn').addEventListener('click',previewHTML);
-            document.getElementById('convertBtn').addEventListener('click',convertToImage);
-            document.getElementById('downloadBtn').addEventListener('click',downloadImage);
-            document.getElementById('resetBtn').addEventListener('click',resetAll);
-            document.getElementById('imageQuality').addEventListener('input',updateQualityDisplay);
-        }
-
-        /* === 预览：iframe 渲染 === */
-        function previewHTML(){
-            const code=document.getElementById('htmlInput').value.trim();
-            if(!code)return showNotification('请输入HTML代码','error');
-            const box=document.getElementById('previewContent');
-            box.innerHTML='';
-            const iframe=document.createElement('iframe');
-            iframe.srcdoc=code;
-            iframe.onload=()=>{
-                const doc=iframe.contentDocument||iframe.contentWindow.document;
-                const width=doc.documentElement.scrollWidth;
-                const height=doc.documentElement.scrollHeight;
-                iframe.style.height=height+'px';
-                lastSize={w:width,h:height};
-                document.getElementById('sizeText').textContent=`${width} × ${height} px`;
-                document.getElementById('sizeInfo').style.display='block';
-            };
-            box.appendChild(iframe);
-        }
-
-        /* === 生成：截图 iframe === */
-        async function convertToImage(){
-            if(!html2canvasLoaded)return showNotification('库未加载完成','error');
-            const code=document.getElementById('htmlInput').value.trim();
-            if(!code)return showNotification('请输入HTML代码','error');
-            const loading=document.getElementById('loading');
-            loading.classList.add('show');
-
-            const iframe=document.createElement('iframe');
-            iframe.style.position='absolute';iframe.style.left='-9999px';
-            iframe.style.width=lastSize.w+'px';iframe.style.height=lastSize.h+'px';
-            iframe.srcdoc=code;document.body.appendChild(iframe);
-
-            iframe.onload=async()=>{
-                const doc=iframe.contentDocument||iframe.contentWindow.document;
-                await Promise.all(Array.from(doc.images).map(img=>img.decode?.()||Promise.resolve()));
-
-                const canvas=await html2canvas(doc.body,{
-                    width:lastSize.w,height:lastSize.h,
-                    scale:parseInt(document.getElementById('scaleRatio').value),
-                    useCORS:true,allowTaint:true,
-                    backgroundColor:document.getElementById('backgroundMode').value==='white'?'#fff':
-                                     document.getElementById('backgroundMode').value==='auto'?null:'transparent',
-                    scrollX:0,scrollY:0,windowWidth:lastSize.w,windowHeight:lastSize.h
-                });
-
-                const format=document.getElementById('imageFormat').value;
-                const quality=parseFloat(document.getElementById('imageQuality').value);
-                currentImageData=canvas.toDataURL('image/'+format,quality);
-                document.getElementById('downloadBtn').disabled=false;
-                showNotification('图片生成成功','success');
-
-                const box=document.getElementById('previewContent');
-                box.innerHTML=`<img src="${currentImageData}" style="max-width:100%;height:auto;box-shadow:0 4px 20px rgba(0,0,0,.1)">`;
-                loading.classList.remove('loading');
-                document.body.removeChild(iframe);
-            };
-        }
-
-        /* === 下载 === */
-        function downloadImage(){
-            if(!currentImageData)return showNotification('请先生成图片','error');
-            const a=document.createElement('a');
-            a.download='html-image-'+Date.now()+'.'+document.getElementById('imageFormat').value;
-            a.href=currentImageData;a.click();
-            showNotification('图片已下载','success');
-        }
-
-        /* === 重置 === */
-        function resetAll(){
-            document.getElementById('htmlInput').value='';
-            document.getElementById('previewContent').innerHTML='<div class="preview-placeholder">点击“预览效果”查看iframe渲染结果</div>';
-            document.getElementById('downloadBtn').disabled=true;
-            document.getElementById('sizeInfo').style.display='none';
-            currentImageData=null;
-            showNotification('已重置','success');
-        }
-
-        /* === 辅助 === */
-        function updateQualityDisplay(){
-            const q=document.getElementById('imageQuality').value;
-            document.getElementById('qualityValue').textContent=Math.round(q*100)+'%';
-        }
-        function showNotification(msg,type){
-            const n=document.getElementById('notification');
-            document.getElementById('notificationText').textContent=msg;
-            n.className='notification show '+type;
-            setTimeout(()=>n.classList.remove('show'),3000);
-        }
+        
+        // 主题切换事件
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            // 切换主题
+            body.setAttribute('data-theme', newTheme);
+            
+            // 更新图标
+            if (newTheme === 'light') {
+                themeIcon.className = 'fas fa-sun text-yellow-400';
+            } else {
+                themeIcon.className = 'fas fa-moon text-white';
+            }
+            
+            // 保存到本地存储
+            localStorage.setItem('theme', newTheme);
+        });
     </script>
+    <!-- html2canvas库 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>
 </html>

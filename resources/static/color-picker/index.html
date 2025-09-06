@@ -3,274 +3,705 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>颜色选择器 - 在线工具箱</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <title>颜色选择器 - 炫酷工具箱</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            
+            /* CSS Variables for theming */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: rgba(99, 102, 241, 0.08);
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-color: #6366f1;
         }
-        .navbar {
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        
+        /* Light theme */
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: rgba(99, 102, 241, 0.08);
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: rgba(99, 102, 241, 0.15);
+            --accent-color: #6366f1;
         }
-        .color-display {
-            height: 200px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        
+        /* 背景动画 */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 霓虹光效 */
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5),
+                        0 0 40px rgba(102, 126, 234, 0.3),
+                        0 0 60px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* 光束效果 */
+        .beam {
+            position: absolute;
+            width: 2px;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, #667eea, transparent);
+            animation: beam 3s ease-in-out infinite;
+        }
+        
+        @keyframes beam {
+            0%, 100% { opacity: 0; transform: translateY(-100px); }
+            50% { opacity: 1; transform: translateY(100vh); }
+        }
+        
+        /* 粒子效果 */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
+        }
+        
+        /* 工具卡片 */
+        .tool-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .tool-card:hover::before {
+            left: 100%;
+        }
+        
+        /* 文字发光效果 */
+        .glow-text {
+            text-shadow: 0 0 5px rgba(99, 102, 241, 0.8),
+                         0 0 10px rgba(99, 102, 241, 0.6),
+                         0 0 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* 按钮动画 */
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
             transition: all 0.3s ease;
         }
-        .color-input-group {
-            margin-bottom: 15px;
+        
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
         }
-        .color-format-tabs .nav-link {
-            color: #6c757d;
+        
+        .btn-glow:hover::before {
+            left: 100%;
         }
-        .color-format-tabs .nav-link.active {
-            color: #0d6efd;
-            font-weight: 500;
+        
+        /* 输入框样式 */
+        .fancy-input {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1rem;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
-        .color-palette {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-            gap: 10px;
-            margin-top: 20px;
+        
+        .fancy-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+            outline: none;
         }
-        .color-palette-item {
-            height: 40px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: transform 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        .color-palette-item:hover {
-            transform: scale(1.1);
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
         }
-        .color-history {
-            margin-top: 20px;
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+            opacity: 0.5;
         }
-        .color-history-item {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border-radius: 5px;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        
+        ::-webkit-scrollbar-thumb:hover {
+            opacity: 0.7;
         }
+        
+        /* 颜色显示区域 */
+        .color-display {
+            height: 200px;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .color-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        
+        .color-display:hover::before {
+            transform: translateX(100%);
+        }
+        
+        /* 滑块样式 */
         .slider-container {
-            margin-bottom: 15px;
+            margin-bottom: 1.5rem;
         }
+        
         .slider-label {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
         }
+        
         .color-slider {
             width: 100%;
-            height: 10px;
-            border-radius: 5px;
+            height: 8px;
+            border-radius: 10px;
             outline: none;
             cursor: pointer;
+            -webkit-appearance: none;
+            background: transparent;
         }
-        .copy-notification {
+        
+        .color-slider::-webkit-slider-track {
+            height: 8px;
+            border-radius: 10px;
+            background: var(--bg-secondary);
+        }
+        
+        .color-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .color-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 标签页样式 */
+        .format-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .format-tab {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .format-tab:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-color);
+            color: var(--text-primary);
+        }
+        
+        .format-tab.active {
+            background: var(--bg-secondary);
+            border-color: var(--accent-color);
+            color: var(--text-primary);
+        }
+        
+        /* 颜色选择器样式 */
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .color-picker {
+            width: 80px;
+            height: 50px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            background: transparent;
+        }
+        
+        .color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        
+        .color-picker::-webkit-color-swatch {
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+        }
+        
+        /* 预设颜色样式 */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        
+        .color-palette-item {
+            height: 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .color-palette-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        
+        .color-palette-item:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+        
+        .color-palette-item:hover::before {
+            transform: translateX(100%);
+        }
+        
+        /* 颜色历史样式 */
+        .color-history {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .color-history-item {
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        .color-history-item:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+        
+        .color-history-item::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 20px;
+            height: 20px;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .color-history-item:hover::after {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        /* 通知样式 */
+        .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            color: var(--text-primary);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
             z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s;
         }
-        .copy-notification.show {
-            opacity: 1;
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left: 4px solid #4caf50;
+        }
+        
+        /* 输入组样式 */
+        .input-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        
+        .input-group .fancy-input {
+            flex: 1;
+            margin: 0;
+        }
+        
+        .copy-btn {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(102, 126, 234, 0.3);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .tool-card {
+                padding: 1.5rem;
+            }
+            
+            .color-picker-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .color-picker {
+                width: 100%;
+                height: 60px;
+            }
+            
+            .format-tabs {
+                justify-content: center;
+            }
+            
+            .color-palette {
+                grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+                gap: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 背景动画效果 -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="beam" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="beam" style="left: 30%; animation-delay: 1s;"></div>
+        <div class="beam" style="left: 50%; animation-delay: 2s;"></div>
+        <div class="beam" style="left: 70%; animation-delay: 0.5s;"></div>
+        <div class="beam" style="left: 90%; animation-delay: 1.5s;"></div>
+        
+        <div class="particle" style="left: 20%; top: 20%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 80%; top: 30%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 50%; top: 60%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 10%; top: 80%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 90%; top: 70%; animation-delay: 4s;"></div>
+    </div>
+
     <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">
-                <i class="bi bi-tools"></i> 工具箱
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">首页</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">颜色选择器</a>
-                    </li>
-                </ul>
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-20 backdrop-blur-lg border-b border-white border-opacity-10">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-tools text-white text-sm"></i>
+                    </div>
+                    <span class="text-xl font-bold glow-text">工具箱</span>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" class="text-white hover:text-purple-400 transition-colors duration-300">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="/" class="text-white hover:text-purple-400 transition-colors duration-300">
+                        <i class="fas fa-arrow-left mr-2"></i>返回主页
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
     <!-- 主要内容 -->
-    <div class="container mt-4 mb-5">
-        <div class="row">
-            <div class="col-lg-8 mx-auto">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0"><i class="bi bi-palette"></i> 颜色选择器</h4>
-                    </div>
-                    <div class="card-body">
-                        <!-- 颜色显示区域 -->
+    <main class="min-h-screen pt-20">
+        <div class="container mx-auto px-6 py-12">
+            <!-- 头部 -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl mb-6 neon-glow">
+                    <i class="fas fa-palette text-white text-3xl"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 glow-text">
+                    <span class="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                        颜色选择器
+                    </span>
+                </h1>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    专业的颜色选择工具，支持多种颜色格式和实时预览
+                </p>
+            </div>
+
+            <!-- 工具主体 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 左侧：颜色选择和控制 -->
+                <div class="space-y-6">
+                    <!-- 颜色显示和选择 -->
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                            <i class="fas fa-eye text-purple-400 mr-3"></i>
+                            颜色预览
+                        </h3>
+                        
                         <div class="color-display" id="colorDisplay"></div>
                         
-                        <!-- 颜色选择器 -->
-                        <div class="mb-4">
-                            <label for="colorPicker" class="form-label">选择颜色</label>
-                            <div class="d-flex align-items-center">
-                                <input type="color" class="form-control form-control-color me-3" id="colorPicker" value="#3366ff" title="选择颜色">
-                                <button class="btn btn-outline-secondary" id="randomColor">
-                                    <i class="bi bi-shuffle"></i> 随机颜色
+                        <div class="color-picker-wrapper">
+                            <input type="color" class="color-picker" id="colorPicker" value="#3366ff" title="选择颜色">
+                            <button id="randomColor" class="flex-1 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 btn-glow">
+                                <i class="fas fa-dice mr-2"></i>随机颜色
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- RGB 调节 -->
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                            <i class="fas fa-sliders-h text-blue-400 mr-3"></i>
+                            RGB 调节
+                        </h3>
+                        
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>红色 (R)</span>
+                                <span id="redValue">51</span>
+                            </div>
+                            <input type="range" class="color-slider" id="redSlider" min="0" max="255" value="51" style="background: linear-gradient(to right, #000, #ff0000);">
+                        </div>
+                        
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>绿色 (G)</span>
+                                <span id="greenValue">102</span>
+                            </div>
+                            <input type="range" class="color-slider" id="greenSlider" min="0" max="255" value="102" style="background: linear-gradient(to right, #000, #00ff00);">
+                        </div>
+                        
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>蓝色 (B)</span>
+                                <span id="blueValue">255</span>
+                            </div>
+                            <input type="range" class="color-slider" id="blueSlider" min="0" max="255" value="255" style="background: linear-gradient(to right, #000, #0000ff);">
+                        </div>
+                    </div>
+                    
+                    <!-- HSL 调节 -->
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                            <i class="fas fa-adjust text-green-400 mr-3"></i>
+                            HSL 调节
+                        </h3>
+                        
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>色相 (H)</span>
+                                <span id="hueValue">220°</span>
+                            </div>
+                            <input type="range" class="color-slider" id="hueSlider" min="0" max="360" value="220" style="background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);">
+                        </div>
+                        
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>饱和度 (S)</span>
+                                <span id="saturationValue">100%</span>
+                            </div>
+                            <input type="range" class="color-slider" id="saturationSlider" min="0" max="100" value="100" style="background: linear-gradient(to right, #808080, #3366ff);">
+                        </div>
+                        
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>亮度 (L)</span>
+                                <span id="lightnessValue">60%</span>
+                            </div>
+                            <input type="range" class="color-slider" id="lightnessSlider" min="0" max="100" value="60" style="background: linear-gradient(to right, #000, #3366ff, #fff);">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧：格式输出和预设 -->
+                <div class="space-y-6">
+                    <!-- 颜色格式 -->
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                            <i class="fas fa-code text-yellow-400 mr-3"></i>
+                            颜色格式
+                        </h3>
+                        
+                        <div class="format-tabs">
+                            <div class="format-tab active" data-format="hex">HEX</div>
+                            <div class="format-tab" data-format="rgb">RGB</div>
+                            <div class="format-tab" data-format="hsl">HSL</div>
+                            <div class="format-tab" data-format="cmyk">CMYK</div>
+                        </div>
+                        
+                        <div class="format-content">
+                            <div class="input-group" id="hexContent">
+                                <input type="text" class="fancy-input" id="hexValue" value="#3366ff" placeholder="#RRGGBB">
+                                <button class="copy-btn" id="copyHex">
+                                    <i class="fas fa-clipboard mr-2"></i>复制
+                                </button>
+                            </div>
+                            
+                            <div class="input-group hidden" id="rgbContent">
+                                <input type="text" class="fancy-input" id="rgbValue" value="rgb(51, 102, 255)" placeholder="rgb(R, G, B)">
+                                <button class="copy-btn" id="copyRgb">
+                                    <i class="fas fa-clipboard mr-2"></i>复制
+                                </button>
+                            </div>
+                            
+                            <div class="input-group hidden" id="hslContent">
+                                <input type="text" class="fancy-input" id="hslValue" value="hsl(220, 100%, 60%)" placeholder="hsl(H, S%, L%)">
+                                <button class="copy-btn" id="copyHsl">
+                                    <i class="fas fa-clipboard mr-2"></i>复制
+                                </button>
+                            </div>
+                            
+                            <div class="input-group hidden" id="cmykContent">
+                                <input type="text" class="fancy-input" id="cmykValue" value="cmyk(80%, 60%, 0%, 0%)" placeholder="cmyk(C%, M%, Y%, K%)">
+                                <button class="copy-btn" id="copyCmyk">
+                                    <i class="fas fa-clipboard mr-2"></i>复制
                                 </button>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- 预设颜色 -->
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                            <i class="fas fa-swatchbook text-pink-400 mr-3"></i>
+                            预设颜色
+                        </h3>
                         
-                        <!-- RGB滑块 -->
-                        <div class="mb-4">
-                            <h5>RGB 调节</h5>
-                            <div class="slider-container">
-                                <div class="slider-label">
-                                    <span>红色 (R)</span>
-                                    <span id="redValue">51</span>
-                                </div>
-                                <input type="range" class="form-range color-slider" id="redSlider" min="0" max="255" value="51" style="background: linear-gradient(to right, #000, #ff0000);">
-                            </div>
-                            <div class="slider-container">
-                                <div class="slider-label">
-                                    <span>绿色 (G)</span>
-                                    <span id="greenValue">102</span>
-                                </div>
-                                <input type="range" class="form-range color-slider" id="greenSlider" min="0" max="255" value="102" style="background: linear-gradient(to right, #000, #00ff00);">
-                            </div>
-                            <div class="slider-container">
-                                <div class="slider-label">
-                                    <span>蓝色 (B)</span>
-                                    <span id="blueValue">255</span>
-                                </div>
-                                <input type="range" class="form-range color-slider" id="blueSlider" min="0" max="255" value="255" style="background: linear-gradient(to right, #000, #0000ff);">
-                            </div>
+                        <div class="color-palette" id="colorPalette">
+                            <!-- 预设颜色将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 颜色历史 -->
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                            <i class="fas fa-history text-orange-400 mr-3"></i>
+                            颜色历史
+                        </h3>
+                        
+                        <div class="color-history" id="colorHistory">
+                            <!-- 颜色历史将通过JavaScript动态生成 -->
                         </div>
                         
-                        <!-- HSL滑块 -->
-                        <div class="mb-4">
-                            <h5>HSL 调节</h5>
-                            <div class="slider-container">
-                                <div class="slider-label">
-                                    <span>色相 (H)</span>
-                                    <span id="hueValue">220°</span>
-                                </div>
-                                <input type="range" class="form-range color-slider" id="hueSlider" min="0" max="360" value="220" style="background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);">
-                            </div>
-                            <div class="slider-container">
-                                <div class="slider-label">
-                                    <span>饱和度 (S)</span>
-                                    <span id="saturationValue">100%</span>
-                                </div>
-                                <input type="range" class="form-range color-slider" id="saturationSlider" min="0" max="100" value="100" style="background: linear-gradient(to right, #808080, #3366ff);">
-                            </div>
-                            <div class="slider-container">
-                                <div class="slider-label">
-                                    <span>亮度 (L)</span>
-                                    <span id="lightnessValue">60%</span>
-                                </div>
-                                <input type="range" class="form-range color-slider" id="lightnessSlider" min="0" max="100" value="60" style="background: linear-gradient(to right, #000, #3366ff, #fff);">
-                            </div>
-                        </div>
-                        
-                        <!-- 颜色格式 -->
-                        <div class="mb-4">
-                            <h5>颜色格式</h5>
-                            <ul class="nav nav-tabs color-format-tabs" id="colorFormatTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="hex-tab" data-bs-toggle="tab" data-bs-target="#hex" type="button" role="tab">HEX</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="rgb-tab" data-bs-toggle="tab" data-bs-target="#rgb" type="button" role="tab">RGB</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="hsl-tab" data-bs-toggle="tab" data-bs-target="#hsl" type="button" role="tab">HSL</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="cmyk-tab" data-bs-toggle="tab" data-bs-target="#cmyk" type="button" role="tab">CMYK</button>
-                                </li>
-                            </ul>
-                            <div class="tab-content mt-3" id="colorFormatTabsContent">
-                                <div class="tab-pane fade show active" id="hex" role="tabpanel">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="hexValue" value="#3366ff">
-                                        <button class="btn btn-outline-secondary" type="button" id="copyHex">
-                                            <i class="bi bi-clipboard"></i> 复制
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="rgb" role="tabpanel">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="rgbValue" value="rgb(51, 102, 255)">
-                                        <button class="btn btn-outline-secondary" type="button" id="copyRgb">
-                                            <i class="bi bi-clipboard"></i> 复制
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="hsl" role="tabpanel">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="hslValue" value="hsl(220, 100%, 60%)">
-                                        <button class="btn btn-outline-secondary" type="button" id="copyHsl">
-                                            <i class="bi bi-clipboard"></i> 复制
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="cmyk" role="tabpanel">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="cmykValue" value="cmyk(80%, 60%, 0%, 0%)">
-                                        <button class="btn btn-outline-secondary" type="button" id="copyCmyk">
-                                            <i class="bi bi-clipboard"></i> 复制
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- 预设颜色 -->
-                        <div class="mb-4">
-                            <h5>预设颜色</h5>
-                            <div class="color-palette" id="colorPalette">
-                                <!-- 预设颜色将通过JavaScript动态生成 -->
-                            </div>
-                        </div>
-                        
-                        <!-- 颜色历史 -->
-                        <div>
-                            <h5>颜色历史</h5>
-                            <div class="color-history" id="colorHistory">
-                                <!-- 颜色历史将通过JavaScript动态生成 -->
-                            </div>
+                        <div class="mt-4 text-center">
+                            <button id="clearHistory" class="copy-btn">
+                                <i class="fas fa-trash mr-2"></i>清空历史
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </main>
+
+    <!-- 通知组件 -->
+    <div id="notification" class="notification success">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span id="notificationText">已复制到剪贴板！</span>
     </div>
 
-    <!-- 复制通知 -->
-    <div class="copy-notification" id="copyNotification">
-        已复制到剪贴板！
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化变量
@@ -309,16 +740,29 @@
             // 预设颜色和历史
             const colorPalette = document.getElementById('colorPalette');
             const colorHistory = document.getElementById('colorHistory');
+            const clearHistoryBtn = document.getElementById('clearHistory');
             
-            // 复制通知
-            const copyNotification = document.getElementById('copyNotification');
+            // 通知
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            // 格式标签
+            const formatTabs = document.querySelectorAll('.format-tab');
+            const formatContents = {
+                hex: document.getElementById('hexContent'),
+                rgb: document.getElementById('rgbContent'),
+                hsl: document.getElementById('hslContent'),
+                cmyk: document.getElementById('cmykContent')
+            };
             
             // 预设颜色数组
             const presetColors = [
                 '#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FF33A1', 
                 '#33FFF6', '#FF8C33', '#8C33FF', '#33FF8C', '#FF3333',
                 '#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF',
-                '#FFFF00', '#FF00FF', '#00FFFF', '#FFA500', '#800080'
+                '#FFFF00', '#FF00FF', '#00FFFF', '#FFA500', '#800080',
+                '#FFC0CB', '#A52A2A', '#808080', '#008000', '#000080',
+                '#4B0082', '#EE82EE', '#98FB98', '#F0E68C', '#DDA0DD'
             ];
             
             // 颜色历史数组
@@ -327,7 +771,22 @@
             // 初始化
             updateColor(colorPicker.value);
             generateColorPalette();
-            updateColorHistory();
+            updateColorHistoryDisplay();
+            
+            // 格式标签切换
+            formatTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const format = this.getAttribute('data-format');
+                    
+                    // 更新标签状态
+                    formatTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 显示对应内容
+                    Object.values(formatContents).forEach(content => content.classList.add('hidden'));
+                    formatContents[format].classList.remove('hidden');
+                });
+            });
             
             // 颜色选择器变化事件
             colorPicker.addEventListener('input', function() {
@@ -420,6 +879,16 @@
             
             copyCmyk.addEventListener('click', function() {
                 copyToClipboard(cmykValue.value);
+            });
+            
+            // 清空历史按钮
+            clearHistoryBtn.addEventListener('click', function() {
+                if (confirm('确定要清空颜色历史吗？')) {
+                    colorHistoryArray = [];
+                    localStorage.removeItem('colorHistory');
+                    updateColorHistoryDisplay();
+                    showNotification('颜色历史已清空');
+                }
             });
             
             // 更新颜色函数
@@ -543,12 +1012,17 @@
                 localStorage.setItem('colorHistory', JSON.stringify(colorHistoryArray));
                 
                 // 更新显示
-                updateColorHistory();
+                updateColorHistoryDisplay();
             }
             
             // 更新颜色历史显示
-            function updateColorHistory() {
+            function updateColorHistoryDisplay() {
                 colorHistory.innerHTML = '';
+                if (colorHistoryArray.length === 0) {
+                    colorHistory.innerHTML = '<div class="text-gray-400 text-sm text-center w-full">暂无历史记录</div>';
+                    return;
+                }
+                
                 colorHistoryArray.forEach(color => {
                     const historyItem = document.createElement('div');
                     historyItem.className = 'color-history-item';
@@ -565,16 +1039,21 @@
             // 复制到剪贴板
             function copyToClipboard(text) {
                 navigator.clipboard.writeText(text).then(function() {
-                    // 显示复制通知
-                    copyNotification.classList.add('show');
-                    
-                    // 3秒后隐藏通知
-                    setTimeout(function() {
-                        copyNotification.classList.remove('show');
-                    }, 3000);
+                    showNotification('已复制到剪贴板！');
                 }).catch(function(err) {
                     console.error('无法复制文本: ', err);
+                    showNotification('复制失败，请手动复制');
                 });
+            }
+            
+            // 显示通知
+            function showNotification(message) {
+                notificationText.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
             }
             
             // 颜色转换函数
@@ -672,6 +1151,33 @@
                 };
             }
         });
+        
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        const themeIcon = themeToggle.querySelector('i');
+        
+        // Check for saved theme preference or default to dark mode
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        body.setAttribute('data-theme', currentTheme);
+        updateThemeIcon(currentTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+        
+        function updateThemeIcon(theme) {
+            if (theme === 'light') {
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+            }
+        }
     </script>
 </body>
 </html>
