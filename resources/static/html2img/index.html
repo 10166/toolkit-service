@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML转图片工具 - 精确版</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+            min-height:100vh;padding:20px;
+        }
+        .container{
+            max-width:1200px;margin:0 auto;background:#fff;border-radius:20px;
+            box-shadow:0 20px 40px rgba(0,0,0,.1);overflow:hidden;
+        }
+        .header{
+            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+            color:#fff;padding:30px;text-align:center;
+        }
+        .header h1{font-size:2.5rem;margin-bottom:10px}
+        .header p{font-size:1.1rem;opacity:.9}
+        .main-content{padding:40px}
+        .input-section{margin-bottom:30px}
+        .section-title{
+            font-size:1.3rem;color:#333;margin-bottom:15px;
+            display:flex;align-items:center;gap:10px;
+        }
+        .section-title::before{
+            content:'';width:4px;height:20px;background:#667eea;border-radius:2px;
+        }
+        .html-input{
+            width:100%;min-height:300px;padding:20px;border:2px solid #e0e0e0;
+            border-radius:10px;font-family:Consolas,Monaco,"Courier New",monospace;
+            font-size:14px;line-height:1.6;resize:vertical;transition:border-color .3s;
+        }
+        .html-input:focus{outline:none;border-color:#667eea}
+        .controls{display:flex;gap:15px;margin-bottom:30px;flex-wrap:wrap}
+        .btn{
+            padding:12px 30px;border:none;border-radius:8px;font-size:16px;font-weight:500;
+            cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:8px;
+        }
+        .btn-primary{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,.4)}
+        .btn-secondary{background:#f5f5f5;color:#333}
+        .btn-secondary:hover{background:#e8e8e8}
+        .btn:disabled{opacity:.6;cursor:not-allowed}
+        .preview-section{margin-bottom:30px}
+        .preview-container{
+            background:#f8f9fa;border-radius:10px;padding:20px;min-height:200px;
+            display:flex;justify-content:center;align-items:center;position:relative;overflow:hidden;
+        }
+        .preview-content{background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.1);max-width:100%;width:100%}
+        .preview-placeholder{color:#999;font-size:18px}
+        .options-section{background:#f8f9fa;border-radius:10px;padding:20px;margin-bottom:30px}
+        .options-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+        .option-group{display:flex;flex-direction:column;gap:8px}
+        .option-label{font-weight:500;color:#555}
+        .option-input{padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px}
+        .notification{
+            position:fixed;top:20px;right:20px;padding:15px 25px;background:#fff;
+            border-radius:8px;box-shadow:0 5px 20px rgba(0,0,0,.1);display:flex;align-items:center;gap:10px;
+            transform:translateX(400px);transition:transform .3s;z-index:1000;
+        }
+        .notification.show{transform:translateX(0)}
+        .notification.success{border-left:4px solid #4caf50}
+        .notification.error{border-left:4px solid #f44336}
+        .loading{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+        .loading.show{display:block}
+        .spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid #667eea;border-radius:50%;animation:spin 1s linear infinite}
+        @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+        iframe{width:100%;border:none;display:block}
+        .dimension-display{background:#f0f7ff;padding:10px 15px;border-radius:6px;font-family:monospace;color:#333;margin-top:5px}
+        .footer{background:#f8f9fa;padding:20px;text-align:center;color:#666;font-size:14px}
+        @media(max-width:768px){
+            .header h1{font-size:2rem}
+            .main-content{padding:20px}
+            .controls{flex-direction:column}
+            .btn{width:100%;justify-content:center}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>HTML转图片工具·精确版</h1>
+            <p>预览与生成完全一致，使用 iframe 沙箱渲染</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <h2 class="section-title">① 输入HTML代码</h2>
+                <textarea id="htmlInput" class="html-input" placeholder="在此粘贴您的HTML代码..."><!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body{
+            margin:0;
+            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+            padding:20px;
+        }
+        .card{
+            background:#fff;
+            border-radius:16px;
+            padding:40px 32px;
+            width:360px;
+            text-align:center;
+            box-shadow:0 10px 30px rgba(0,0,0,.15);
+        }
+        .card h1{color:#333;font-size:24px;margin-bottom:12px}
+        .card p{color:#666;line-height:1.6;margin-bottom:24px}
+        .btn{
+            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+            color:#fff;border:none;padding:12px 28px;border-radius:24px;font-size:16px;cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>预览 = 生成</h1>
+        <p>iframe 沙箱保证渲染一致性，自动计算尺寸，不再错位。</p>
+        <button class="btn">立即体验</button>
+    </div>
+</body>
+</html></textarea>
+            </div>
+
+            <div class="options-section">
+                <h2 class="section-title">② 选项</h2>
+                <div class="options-grid">
+                    <div class="option-group">
+                        <label class="option-label">图片格式</label>
+                        <select id="imageFormat" class="option-input">
+                            <option value="png">PNG</option>
+                            <option value="jpeg">JPEG</option>
+                            <option value="webp">WebP</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">图片质量</label>
+                        <input type="range" id="imageQuality" class="option-input" min="0.1" max="1" step="0.1" value="0.9">
+                        <span id="qualityValue">90%</span>
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">缩放比例</label>
+                        <select id="scaleRatio" class="option-input">
+                            <option value="1">1×（标准）</option>
+                            <option value="2" selected>2×（高清）</option>
+                            <option value="3">3×（超清）</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">背景模式</label>
+                        <select id="backgroundMode" class="option-input">
+                            <option value="transparent">透明</option>
+                            <option value="white">白色</option>
+                            <option value="auto">自动检测</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="sizeInfo" class="dimension-display" style="margin-top:10px;display:none;">检测尺寸：<span id="sizeText">-</span></div>
+            </div>
+
+            <div class="controls">
+                <button id="previewBtn" class="btn btn-secondary"><span>👁️</span>预览效果</button>
+                <button id="convertBtn" class="btn btn-primary"><span>🖼️</span>生成图片</button>
+                <button id="downloadBtn" class="btn btn-primary" disabled><span>💾</span>下载图片</button>
+                <button id="resetBtn" class="btn btn-secondary"><span>🔄</span>重置</button>
+            </div>
+
+            <div class="preview-section">
+                <h2 class="section-title">③ 预览（与生成完全一致）</h2>
+                <div class="preview-container">
+                    <div id="previewContent" class="preview-content">
+                        <div class="preview-placeholder">点击“预览效果”查看iframe渲染结果</div>
+                    </div>
+                    <div id="loading" class="loading"><div class="spinner"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>HTML转图片工具·精确版 | 预览即所得 | 隐私保护 - 全部本地处理</p>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"><span id="notificationText"></span></div>
+
+    <script>
+        let currentImageData=null,html2canvasLoaded=false,lastSize={w:0,h:0};
+
+        /* === 初始化 === */
+        document.addEventListener('DOMContentLoaded',()=>{
+            loadHtml2Canvas();
+            setupHandlers();
+            updateQualityDisplay();
+        });
+
+        /* === 加载 html2canvas === */
+        function loadHtml2Canvas(){
+            const s=document.createElement('script');
+            s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+            s.onload=()=>{html2canvasLoaded=true;showNotification('html2canvas 已加载','success')};
+            s.onerror=()=>showNotification('html2canvas 加载失败','error');
+            document.head.appendChild(s);
+        }
+
+        /* === 事件绑定 === */
+        function setupHandlers(){
+            document.getElementById('previewBtn').addEventListener('click',previewHTML);
+            document.getElementById('convertBtn').addEventListener('click',convertToImage);
+            document.getElementById('downloadBtn').addEventListener('click',downloadImage);
+            document.getElementById('resetBtn').addEventListener('click',resetAll);
+            document.getElementById('imageQuality').addEventListener('input',updateQualityDisplay);
+        }
+
+        /* === 预览：iframe 渲染 === */
+        function previewHTML(){
+            const code=document.getElementById('htmlInput').value.trim();
+            if(!code)return showNotification('请输入HTML代码','error');
+            const box=document.getElementById('previewContent');
+            box.innerHTML='';
+            const iframe=document.createElement('iframe');
+            iframe.srcdoc=code;
+            iframe.onload=()=>{
+                const doc=iframe.contentDocument||iframe.contentWindow.document;
+                const width=doc.documentElement.scrollWidth;
+                const height=doc.documentElement.scrollHeight;
+                iframe.style.height=height+'px';
+                lastSize={w:width,h:height};
+                document.getElementById('sizeText').textContent=`${width} × ${height} px`;
+                document.getElementById('sizeInfo').style.display='block';
+            };
+            box.appendChild(iframe);
+        }
+
+        /* === 生成：截图 iframe === */
+        async function convertToImage(){
+            if(!html2canvasLoaded)return showNotification('库未加载完成','error');
+            const code=document.getElementById('htmlInput').value.trim();
+            if(!code)return showNotification('请输入HTML代码','error');
+            const loading=document.getElementById('loading');
+            loading.classList.add('show');
+
+            const iframe=document.createElement('iframe');
+            iframe.style.position='absolute';iframe.style.left='-9999px';
+            iframe.style.width=lastSize.w+'px';iframe.style.height=lastSize.h+'px';
+            iframe.srcdoc=code;document.body.appendChild(iframe);
+
+            iframe.onload=async()=>{
+                const doc=iframe.contentDocument||iframe.contentWindow.document;
+                await Promise.all(Array.from(doc.images).map(img=>img.decode?.()||Promise.resolve()));
+
+                const canvas=await html2canvas(doc.body,{
+                    width:lastSize.w,height:lastSize.h,
+                    scale:parseInt(document.getElementById('scaleRatio').value),
+                    useCORS:true,allowTaint:true,
+                    backgroundColor:document.getElementById('backgroundMode').value==='white'?'#fff':
+                                     document.getElementById('backgroundMode').value==='auto'?null:'transparent',
+                    scrollX:0,scrollY:0,windowWidth:lastSize.w,windowHeight:lastSize.h
+                });
+
+                const format=document.getElementById('imageFormat').value;
+                const quality=parseFloat(document.getElementById('imageQuality').value);
+                currentImageData=canvas.toDataURL('image/'+format,quality);
+                document.getElementById('downloadBtn').disabled=false;
+                showNotification('图片生成成功','success');
+
+                const box=document.getElementById('previewContent');
+                box.innerHTML=`<img src="${currentImageData}" style="max-width:100%;height:auto;box-shadow:0 4px 20px rgba(0,0,0,.1)">`;
+                loading.classList.remove('loading');
+                document.body.removeChild(iframe);
+            };
+        }
+
+        /* === 下载 === */
+        function downloadImage(){
+            if(!currentImageData)return showNotification('请先生成图片','error');
+            const a=document.createElement('a');
+            a.download='html-image-'+Date.now()+'.'+document.getElementById('imageFormat').value;
+            a.href=currentImageData;a.click();
+            showNotification('图片已下载','success');
+        }
+
+        /* === 重置 === */
+        function resetAll(){
+            document.getElementById('htmlInput').value='';
+            document.getElementById('previewContent').innerHTML='<div class="preview-placeholder">点击“预览效果”查看iframe渲染结果</div>';
+            document.getElementById('downloadBtn').disabled=true;
+            document.getElementById('sizeInfo').style.display='none';
+            currentImageData=null;
+            showNotification('已重置','success');
+        }
+
+        /* === 辅助 === */
+        function updateQualityDisplay(){
+            const q=document.getElementById('imageQuality').value;
+            document.getElementById('qualityValue').textContent=Math.round(q*100)+'%';
+        }
+        function showNotification(msg,type){
+            const n=document.getElementById('notification');
+            document.getElementById('notificationText').textContent=msg;
+            n.className='notification show '+type;
+            setTimeout(()=>n.classList.remove('show'),3000);
+        }
+    </script>
+</body>
+</html>

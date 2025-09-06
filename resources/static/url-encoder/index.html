@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL编码解码工具 - 在线工具箱</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .tool-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 2px;
+        }
+        .url-input, .url-output {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        .url-input:focus, .url-output:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+        .options {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .option-label {
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+        .option-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .notification.success {
+            border-left: 4px solid #4caf50;
+        }
+        .notification.error {
+            border-left: 4px solid #f44336;
+        }
+        .error-message {
+            color: #f44336;
+            margin-top: 10px;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 6px;
+            display: none;
+        }
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .reference-section {
+            margin-top: 30px;
+        }
+        .reference-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .reference-table th, .reference-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .reference-table th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        .reference-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        .encoding-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .encoding-table th, .encoding-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .encoding-table th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        .encoding-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="bi bi-link-45deg"></i> URL编码解码工具</h1>
+            <p>对URL进行编码和解码，处理特殊字符</p>
+        </div>
+
+        <div class="tool-section">
+            <h2 class="section-title">输入URL或文本</h2>
+            <textarea id="urlInput" class="url-input" placeholder="输入需要编码或解码的URL或文本...">https://example.com/search?q=工具箱&lang=zh-CN</textarea>
+            
+            <div class="error-message" id="errorMessage">
+                <i class="bi bi-exclamation-triangle"></i> <span id="errorText"></span>
+            </div>
+            
+            <div class="controls">
+                <button id="encodeBtn" class="btn btn-primary"><i class="bi bi-lock"></i> URL编码</button>
+                <button id="decodeBtn" class="btn btn-primary"><i class="bi bi-unlock"></i> URL解码</button>
+                <button id="partialEncodeBtn" class="btn btn-secondary"><i class="bi bi-lock-fill"></i> 部分编码</button>
+                <button id="copyBtn" class="btn btn-secondary"><i class="bi bi-clipboard"></i> 复制结果</button>
+                <button id="clearBtn" class="btn btn-secondary"><i class="bi bi-trash"></i> 清空</button>
+            </div>
+            
+            <div class="options">
+                <div class="option-group">
+                    <label class="option-label">编码类型</label>
+                    <select id="encodingType" class="option-input">
+                        <option value="encodeURIComponent">encodeURIComponent (完整编码)</option>
+                        <option value="encodeURI">encodeURI (保留URI字符)</option>
+                        <option value="escape">escape (已废弃，仅兼容)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="tool-section">
+            <h2 class="section-title">处理结果</h2>
+            <textarea id="urlOutput" class="url-output" readonly placeholder="编码或解码后的结果将显示在这里..."></textarea>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <i class="bi bi-hash"></i> <span id="charCount">0</span> 字符
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-percent"></i> <span id="encodedCount">0</span> 个编码字符
+                </div>
+            </div>
+        </div>
+
+        <div class="tool-section reference-section">
+            <h2 class="section-title">URL编码参考</h2>
+            <table class="reference-table">
+                <thead>
+                    <tr>
+                        <th>编码方法</th>
+                        <th>描述</th>
+                        <th>适用场景</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>encodeURIComponent()</code></td>
+                        <td>对URI中的组件进行编码，包括特殊字符如 ;,/?:@&=+$#</td>
+                        <td>编码URL参数值，表单数据</td>
+                    </tr>
+                    <tr>
+                        <td><code>encodeURI()</code></td>
+                        <td>对整个URI进行编码，保留URI特殊字符如 ;,/?:@&=+$#</td>
+                        <td>编码完整URL，但保留其结构</td>
+                    </tr>
+                    <tr>
+                        <td><code>escape()</code></td>
+                        <td>已废弃的方法，仅用于向后兼容</td>
+                        <td>不推荐在新代码中使用</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3 class="section-title mt-4">常见字符编码对照表</h3>
+            <table class="encoding-table">
+                <thead>
+                    <tr>
+                        <th>字符</th>
+                        <th>编码结果</th>
+                        <th>字符</th>
+                        <th>编码结果</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>空格</td>
+                        <td><code>%20</code> 或 <code>+</code></td>
+                        <td>!</td>
+                        <td><code>%21</code></td>
+                    </tr>
+                    <tr>
+                        <td>"</td>
+                        <td><code>%22</code></td>
+                        <td>#</td>
+                        <td><code>%23</code></td>
+                    </tr>
+                    <tr>
+                        <td>$</td>
+                        <td><code>%24</code></td>
+                        <td>%</td>
+                        <td><code>%25</code></td>
+                    </tr>
+                    <tr>
+                        <td>&</td>
+                        <td><code>%26</code></td>
+                        <td>'</td>
+                        <td><code>%27</code></td>
+                    </tr>
+                    <tr>
+                        <td>(</td>
+                        <td><code>%28</code></td>
+                        <td>)</td>
+                        <td><code>%29</code></td>
+                    </tr>
+                    <tr>
+                        <td>+</td>
+                        <td><code>%2B</code></td>
+                        <td>,</td>
+                        <td><code>%2C</code></td>
+                    </tr>
+                    <tr>
+                        <td>/</td>
+                        <td><code>%2F</code></td>
+                        <td>:</td>
+                        <td><code>%3A</code></td>
+                    </tr>
+                    <tr>
+                        <td>;</td>
+                        <td><code>%3B</code></td>
+                        <td>=</td>
+                        <td><code>%3D</code></td>
+                    </tr>
+                    <tr>
+                        <td>?</td>
+                        <td><code>%3F</code></td>
+                        <td>@</td>
+                        <td><code>%40</code></td>
+                    </tr>
+                    <tr>
+                        <td>[</td>
+                        <td><code>%5B</code></td>
+                        <td>]</td>
+                        <td><code>%5D</code></td>
+                    </tr>
+                    <tr>
+                        <td>中文字符</td>
+                        <td><code>%E4%B8%AD%E6%96%87</code> (UTF-8编码)</td>
+                        <td>其他非ASCII字符</td>
+                        <td>根据字符编码转换为%XX格式</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <span id="notificationText"></span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlInput = document.getElementById('urlInput');
+            const urlOutput = document.getElementById('urlOutput');
+            const encodeBtn = document.getElementById('encodeBtn');
+            const decodeBtn = document.getElementById('decodeBtn');
+            const partialEncodeBtn = document.getElementById('partialEncodeBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const encodingType = document.getElementById('encodingType');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            const charCount = document.getElementById('charCount');
+            const encodedCount = document.getElementById('encodedCount');
+
+            // URL编码
+            encodeBtn.addEventListener('click', function() {
+                try {
+                    const input = urlInput.value.trim();
+                    if (!input) {
+                        showError('请输入需要编码的URL或文本');
+                        return;
+                    }
+                    
+                    let result;
+                    const type = encodingType.value;
+                    
+                    if (type === 'encodeURIComponent') {
+                        result = encodeURIComponent(input);
+                    } else if (type === 'encodeURI') {
+                        result = encodeURI(input);
+                    } else if (type === 'escape') {
+                        result = escape(input);
+                    }
+                    
+                    urlOutput.value = result;
+                    updateStats(result);
+                    showNotification('URL编码成功', 'success');
+                    errorMessage.style.display = 'none';
+                } catch (error) {
+                    showError('编码失败: ' + error.message);
+                }
+            });
+
+            // URL解码
+            decodeBtn.addEventListener('click', function() {
+                try {
+                    const input = urlInput.value.trim();
+                    if (!input) {
+                        showError('请输入需要解码的URL或文本');
+                        return;
+                    }
+                    
+                    let result;
+                    const type = encodingType.value;
+                    
+                    // 尝试不同的解码方法
+                    try {
+                        if (type === 'encodeURIComponent') {
+                            result = decodeURIComponent(input);
+                        } else if (type === 'encodeURI') {
+                            result = decodeURI(input);
+                        } else if (type === 'escape') {
+                            result = unescape(input);
+                        }
+                    } catch (e) {
+                        // 如果指定方法失败，尝试其他方法
+                        try {
+                            result = decodeURIComponent(input);
+                        } catch (e2) {
+                            try {
+                                result = decodeURI(input);
+                            } catch (e3) {
+                                result = unescape(input);
+                            }
+                        }
+                    }
+                    
+                    urlOutput.value = result;
+                    updateStats(result);
+                    showNotification('URL解码成功', 'success');
+                    errorMessage.style.display = 'none';
+                } catch (error) {
+                    showError('解码失败: ' + error.message);
+                }
+            });
+
+            // 部分编码（只编码特殊字符）
+            partialEncodeBtn.addEventListener('click', function() {
+                try {
+                    const input = urlInput.value.trim();
+                    if (!input) {
+                        showError('请输入需要编码的URL或文本');
+                        return;
+                    }
+                    
+                    // 只编码特殊字符，保留字母、数字和-_.~
+                    const result = input.replace(/[^A-Za-z0-9-_.~]/g, function(c) {
+                        return '%' + c.charCodeAt(0).toString(16).toUpperCase();
+                    });
+                    
+                    urlOutput.value = result;
+                    updateStats(result);
+                    showNotification('部分编码成功', 'success');
+                    errorMessage.style.display = 'none';
+                } catch (error) {
+                    showError('编码失败: ' + error.message);
+                }
+            });
+
+            // 复制结果
+            copyBtn.addEventListener('click', function() {
+                if (!urlOutput.value) {
+                    showError('没有可复制的内容');
+                    return;
+                }
+                
+                urlOutput.select();
+                document.execCommand('copy');
+                showNotification('已复制到剪贴板', 'success');
+            });
+
+            // 清空
+            clearBtn.addEventListener('click', function() {
+                urlInput.value = '';
+                urlOutput.value = '';
+                errorMessage.style.display = 'none';
+                updateStats('');
+            });
+
+            // 显示错误信息
+            function showError(message) {
+                errorText.textContent = message;
+                errorMessage.style.display = 'block';
+            }
+
+            // 显示通知
+            function showNotification(message, type) {
+                notificationText.textContent = message;
+                notification.className = 'notification ' + type;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            // 更新统计信息
+            function updateStats(text) {
+                charCount.textContent = text.length;
+                
+                // 计算编码字符数量
+                const encodedChars = (text.match(/%[0-9A-Fa-f]{2}/g) || []).length;
+                encodedCount.textContent = encodedChars;
+            }
+
+            // 初始化统计信息
+            updateStats('');
+        });
+    </script>
+</body>
+</html>

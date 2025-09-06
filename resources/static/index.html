@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工具箱 - 在线工具集合</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 80px 0;
+            margin-bottom: 40px;
+            border-radius: 0 0 20px 20px;
+        }
+        .tool-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .tool-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .tool-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #2575fc;
+        }
+        .login-modal .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        .login-modal .modal-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .user-info {
+            display: none;
+        }
+        .user-info.logged-in {
+            display: block;
+        }
+        .login-btn.logged-in {
+            display: none;
+        }
+        .footer {
+            margin-top: 50px;
+            padding: 30px 0;
+            background-color: #343a40;
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="bi bi-tools"></i> 工具箱
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#tools">工具</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">关于</a>
+                    </li>
+                    <li class="nav-item user-info" id="userInfo">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-person-circle"></i> <span id="username">用户</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-outline-primary login-btn" id="loginBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            登录
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主页横幅 -->
+    <div class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-4">在线工具箱</h1>
+            <p class="lead mb-5">一站式解决您的日常工具需求，简单高效，免费使用</p>
+            <a href="#tools" class="btn btn-light btn-lg px-4">
+                <i class="bi bi-arrow-down-circle"></i> 浏览工具
+            </a>
+        </div>
+    </div>
+
+    <!-- 工具列表 -->
+    <div class="container mb-5" id="tools">
+        <h2 class="text-center mb-5">工具列表</h2>
+        
+        <!-- 搜索框 -->
+        <div class="row mb-4">
+            <div class="col-md-8 mx-auto">
+                <div class="input-group">
+                    <span class="input-group-text bg-primary text-white">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control" id="toolSearch" placeholder="搜索工具名称或描述...">
+                    <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">加载中...</span>
+            </div>
+            <p class="mt-2">正在加载工具列表...</p>
+        </div>
+        
+        <div class="row g-4" id="toolsList">
+            <!-- 工具卡片将通过JavaScript动态加载 -->
+        </div>
+        
+        <div id="noResults" class="text-center mt-4 d-none">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> 没有找到匹配的工具
+            </div>
+        </div>
+    </div>
+
+    <!-- 关于部分 -->
+    <div class="container mb-5" id="about">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="mb-4">关于工具箱</h2>
+                <p>我们的工具箱网站致力于为用户提供各种实用的小工具，帮助您提高工作效率，简化日常任务。</p>
+                <p>所有工具均为免费使用，无需注册即可访问大部分功能。登录后可享受更多高级功能。</p>
+                <div class="d-flex mt-4">
+                    <div class="me-4">
+                        <h4><i class="bi bi-lightning-charge text-primary"></i></h4>
+                        <p>快速高效</p>
+                    </div>
+                    <div class="me-4">
+                        <h4><i class="bi bi-shield-check text-primary"></i></h4>
+                        <p>安全可靠</p>
+                    </div>
+                    <div>
+                        <h4><i class="bi bi-phone text-primary"></i></h4>
+                        <p>多端适配</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="bg-light p-5 rounded text-center">
+                    <i class="bi bi-tools" style="font-size: 5rem; color: #6a11cb;"></i>
+                    <h4 class="mt-3">一站式工具平台</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5>工具箱</h5>
+                    <p>一站式在线工具集合平台，为您提供便捷高效的工具服务。</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-white text-decoration-none">首页</a></li>
+                        <li class="mb-2"><a href="#tools" class="text-white text-decoration-none">工具</a></li>
+                        <li class="mb-2"><a href="#about" class="text-white text-decoration-none">关于</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>联系我们</h5>
+                    <p>邮箱: contact@toolbox.com</p>
+                    <div class="d-flex">
+                        <a href="#" class="text-white me-3"><i class="bi bi-github"></i></a>
+                        <a href="#" class="text-white me-3"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-white"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 bg-white">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2023 工具箱. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 登录模态框 -->
+    <div class="modal fade login-modal" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">用户登录</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="password" class="form-label">密码</label>
+                        <input type="password" class="form-control" id="password" placeholder="请输入密码">
+                        <div class="form-text">提示: 默认密码为 187187187</div>
+                    </div>
+                    <div id="loginError" class="alert alert-danger d-none" role="alert">
+                        密码错误，请重试！
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="loginSubmit">登录</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查登录状态
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (isLoggedIn) {
+                document.getElementById('userInfo').classList.add('logged-in');
+                document.getElementById('loginBtn').classList.add('logged-in');
+            }
+
+            // 登录功能
+            document.getElementById('loginSubmit').addEventListener('click', function() {
+                const password = document.getElementById('password').value;
+                const loginError = document.getElementById('loginError');
+                
+                if (password === '187187187') {
+                    // 登录成功
+                    localStorage.setItem('isLoggedIn', 'true');
+                    document.getElementById('userInfo').classList.add('logged-in');
+                    document.getElementById('loginBtn').classList.add('logged-in');
+                    
+                    // 关闭模态框
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                    modal.hide();
+                    
+                    // 清空密码输入框
+                    document.getElementById('password').value = '';
+                    loginError.classList.add('d-none');
+                } else {
+                    // 登录失败
+                    loginError.classList.remove('d-none');
+                }
+            });
+
+            // 加载工具列表
+            loadTools();
+        });
+
+        // 从后端加载工具列表
+        function loadTools() {
+            const toolsList = document.getElementById('toolsList');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const toolSearch = document.getElementById('toolSearch');
+            const clearSearch = document.getElementById('clearSearch');
+            const noResults = document.getElementById('noResults');
+            
+            // 显示加载动画
+            loadingSpinner.style.display = 'block';
+            
+            // 从后端API获取工具列表
+            fetch('/api/tools')
+                .then(response => response.json())
+                .then(data => {
+                    // 隐藏加载动画
+                    loadingSpinner.style.display = 'none';
+                    
+                    if (data.success && data.data) {
+                        // 存储原始工具数据
+                        window.allTools = data.data;
+                        
+                        // 初始渲染所有工具
+                        renderTools(window.allTools);
+                        
+                        // 添加搜索功能
+                        toolSearch.addEventListener('input', function() {
+                            const searchTerm = this.value.toLowerCase().trim();
+                            
+                            if (searchTerm === '') {
+                                renderTools(window.allTools);
+                                return;
+                            }
+                            
+                            const filteredTools = window.allTools.filter(tool => {
+                                return tool.name.toLowerCase().includes(searchTerm) || 
+                                       tool.description.toLowerCase().includes(searchTerm);
+                            });
+                            
+                            renderTools(filteredTools);
+                        });
+                        
+                        // 添加清除搜索按钮功能
+                        clearSearch.addEventListener('click', function() {
+                            toolSearch.value = '';
+                            renderTools(window.allTools);
+                        });
+                    } else {
+                        // 处理错误情况
+                        toolsList.innerHTML = '<div class="col-12 text-center"><p class="text-danger">加载工具列表失败，请稍后重试。</p></div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading tools:', error);
+                    // 隐藏加载动画
+                    loadingSpinner.style.display = 'none';
+                    // 显示错误信息
+                    toolsList.innerHTML = '<div class="col-12 text-center"><p class="text-danger">网络错误，请检查您的连接并重试。</p></div>';
+                });
+        }
+        
+        // 渲染工具列表
+        function renderTools(tools) {
+            const toolsList = document.getElementById('toolsList');
+            const noResults = document.getElementById('noResults');
+            
+            // 清空工具列表
+            toolsList.innerHTML = '';
+            
+            // 隐藏无结果提示
+            noResults.classList.add('d-none');
+            
+            if (tools.length === 0) {
+                // 显示无结果提示
+                noResults.classList.remove('d-none');
+                return;
+            }
+            
+            // 添加工具卡片
+            tools.forEach(tool => {
+                const toolCard = document.createElement('div');
+                toolCard.className = 'col-md-6 col-lg-4';
+                toolCard.innerHTML = `
+                    <div class="card tool-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="tool-icon">
+                                <i class="bi ${tool.icon}"></i>
+                            </div>
+                            <h5 class="card-title">${tool.name}</h5>
+                            <p class="card-text">${tool.description}</p>
+                            <a href="${tool.url}" class="btn btn-primary mt-2">
+                                使用工具 <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                toolsList.appendChild(toolCard);
+            });
+        }
+    </script>
+</body>
+</html>
