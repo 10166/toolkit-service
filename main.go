@@ -5,9 +5,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 
 	"github.com/gin-gonic/gin"
+	"github.com/render-examples/go-gin-web-server/tokenizer"
 )
 
 // Tool 表示一个工具的结构
@@ -17,6 +19,21 @@ type Tool struct {
 	Description string `json:"description"`
 	Icon        string `json:"icon"`
 	URL         string `json:"url"`
+}
+
+// TokenizerRequest 表示tokenizer请求的结构
+type TokenizerRequest struct {
+	Text     string `json:"text"`
+	Mode     string `json:"mode"`                // encode, decode, tokenize
+	TokenIDs []int  `json:"token_ids,omitempty"` // 用于解码
+}
+
+// TokenizerResponse 表示tokenizer响应的结构
+type TokenizerResponse struct {
+	Success     bool                       `json:"success"`
+	Message     string                     `json:"message,omitempty"`
+	Data        *tokenizer.TokenizerResult `json:"data,omitempty"`
+	DecodedText string                     `json:"decoded_text,omitempty"`
 }
 
 // 模拟的工具数据
@@ -84,10 +101,18 @@ var tools = []Tool{
 		Icon:        "fas fa-palette",
 		URL:         "/color-picker",
 	},
+	{
+		ID:          10,
+		Name:        "Tokenizer分析器",
+		Description: "对文本进行tokenizer分析，统计token数量和显示分块结果",
+		Icon:        "fas fa-th-large",
+		URL:         "/tokenizer",
+	},
 }
 
 func main() {
 	ConfigRuntime()
+	initTokenizer() // 初始化tokenizer
 	StartGin()
 }
 
@@ -158,6 +183,144 @@ func colorPickerHandler(c *gin.Context) {
 	c.File("resources/static/color-picker/index.html")
 }
 
+// tokenizerHandler 处理tokenizer工具请求
+func tokenizerHandler(c *gin.Context) {
+	c.File("resources/static/tokenizer/index.html")
+}
+
+// 全局tokenizer实例
+var globalTokenizer *tokenizer.Tokenizer
+
+// 初始化tokenizer
+func initTokenizer() {
+	configPath := filepath.Join("tokenizer", "tokenizer.json")
+	tk, err := tokenizer.NewTokenizer(configPath)
+	if err != nil {
+		log.Printf("Failed to initialize tokenizer: %v", err)
+		// 创建基础tokenizer作为后备
+		tk = createBasicTokenizer()
+	}
+	globalTokenizer = tk
+	log.Printf("Tokenizer initialized, vocab size: %d", tk.GetVocabSize())
+}
+
+// 创建基础tokenizer
+func createBasicTokenizer() *tokenizer.Tokenizer {
+	// 这里可以创建一个基础的tokenizer实例
+	// 简化实现，返回nil
+	return nil
+}
+
+// tokenizerAPI 处理tokenizer API请求
+func tokenizerAPI(c *gin.Context) {
+	if globalTokenizer == nil {
+		c.JSON(http.StatusInternalServerError, TokenizerResponse{
+			Success: false,
+			Message: "Tokenizer未初始化",
+		})
+		return
+	}
+
+	var req TokenizerRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, TokenizerResponse{
+			Success: false,
+			Message: "请求格式错误",
+		})
+		return
+	}
+
+	switch req.Mode {
+	case "tokenize":
+		if req.Text == "" {
+			c.JSON(http.StatusBadRequest, TokenizerResponse{
+				Success: false,
+				Message: "文本内容不能为空",
+			})
+			return
+		}
+
+		result, err := globalTokenizer.Tokenize(req.Text)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, TokenizerResponse{
+				Success: false,
+				Message: fmt.Sprintf("Tokenization失败: %v", err),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, TokenizerResponse{
+			Success: true,
+			Data:    result,
+		})
+
+	case "encode":
+		if req.Text == "" {
+			c.JSON(http.StatusBadRequest, TokenizerResponse{
+				Success: false,
+				Message: "文本内容不能为空",
+			})
+			return
+		}
+
+		tokenIDs, err := globalTokenizer.Encode(req.Text)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, TokenizerResponse{
+				Success: false,
+				Message: fmt.Sprintf("Encoding失败: %v", err),
+			})
+			return
+		}
+
+		// 获取tokens用于显示
+		result, err := globalTokenizer.Tokenize(req.Text)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, TokenizerResponse{
+				Success: false,
+				Message: fmt.Sprintf("Tokenization失败: %v", err),
+			})
+			return
+		}
+
+		// 添加token IDs到结果中
+		result.TokenIDs = tokenIDs
+
+		c.JSON(http.StatusOK, TokenizerResponse{
+			Success: true,
+			Data:    result,
+		})
+
+	case "decode":
+		if len(req.TokenIDs) == 0 {
+			c.JSON(http.StatusBadRequest, TokenizerResponse{
+				Success: false,
+				Message: "Token IDs不能为空",
+			})
+			return
+		}
+
+		decodedText, err := globalTokenizer.Decode(req.TokenIDs)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, TokenizerResponse{
+				Success: false,
+				Message: fmt.Sprintf("Decoding失败: %v", err),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, TokenizerResponse{
+			Success:     true,
+			DecodedText: decodedText,
+		})
+
+	default:
+		c.JSON(http.StatusBadRequest, TokenizerResponse{
+			Success: false,
+			Message: "不支持的模式，支持：tokenize, encode, decode",
+		})
+	}
+}
+
 // StartGin starts gin web server with setting router.
 func StartGin() {
 	gin.SetMode(gin.ReleaseMode)
@@ -178,6 +341,8 @@ func StartGin() {
 	router.GET("/timestamp-converter", timestampConverterHandler)
 	router.GET("/uuid-generator", uuidGeneratorHandler)
 	router.GET("/color-picker", colorPickerHandler)
+	router.GET("/tokenizer", tokenizerHandler)
+	router.POST("/api/tokenizer", tokenizerAPI)
 	// router.GET("/room/:roomid", roomGET)
 	// router.POST("/room-post/:roomid", roomPOST)
 	// router.GET("/stream/:roomid", streamRoom)

@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokenizer分析器 - 炫酷工具箱</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary, #0a0a0a);
+            color: var(--text-primary, #ffffff);
+            overflow-x: hidden;
+        }
+        
+        /* 主题变量 */
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: rgba(102, 126, 234, 0.1);
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-color: #667eea;
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: rgba(99, 102, 241, 0.08);
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: rgba(99, 102, 241, 0.15);
+            --accent-color: #6366f1;
+        }
+        
+        /* 背景动画 */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 霓虹光效 */
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5),
+                        0 0 40px rgba(102, 126, 234, 0.3),
+                        0 0 60px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* 光束效果 */
+        .beam {
+            position: absolute;
+            width: 2px;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, #667eea, transparent);
+            animation: beam 3s ease-in-out infinite;
+        }
+        
+        @keyframes beam {
+            0%, 100% { opacity: 0; transform: translateY(-100px); }
+            50% { opacity: 1; transform: translateY(100vh); }
+        }
+        
+        /* 粒子效果 */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
+        }
+        
+        /* 工具卡片 */
+        .tool-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .tool-card:hover::before {
+            left: 100%;
+        }
+        
+        /* 文字发光效果 */
+        .glow-text {
+            text-shadow: 0 0 5px rgba(102, 126, 234, 0.6),
+                         0 0 10px rgba(102, 126, 234, 0.4),
+                         0 0 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        /* 按钮动画 */
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-glow:hover::before {
+            left: 100%;
+        }
+        
+        /* 输入框样式 */
+        .fancy-input {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1rem;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .fancy-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            outline: none;
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.7);
+        }
+        
+        /* 通知样式 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left: 4px solid #4caf50;
+        }
+        
+        .notification.error {
+            border-left: 4px solid #f44336;
+        }
+        
+        /* 错误消息样式 */
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        /* 选择框样式 */
+        .fancy-select {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            min-height: 40px;
+        }
+        
+        .fancy-select option {
+            background: #1a1a1a;
+            color: #ffffff;
+            padding: 0.5rem;
+        }
+        
+        [data-theme="light"] .fancy-select option {
+            background: #ffffff;
+            color: #1a1a1a;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .fancy-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            outline: none;
+        }
+        
+        /* 统计信息样式 */
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        /* Token标签样式 */
+        .token-tag {
+            display: inline-block;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .token-tag:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .token-tag.highlight {
+            background: rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+        
+        /* 分隔符输入样式 */
+        .separator-input {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.875rem;
+        }
+        
+        .separator-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            outline: none;
+        }
+        
+        /* 加载动画 */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #667eea;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景动画效果 -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="beam" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="beam" style="left: 30%; animation-delay: 1s;"></div>
+        <div class="beam" style="left: 50%; animation-delay: 2s;"></div>
+        <div class="beam" style="left: 70%; animation-delay: 0.5s;"></div>
+        <div class="beam" style="left: 90%; animation-delay: 1.5s;"></div>
+        
+        <div class="particle" style="left: 20%; top: 20%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 80%; top: 30%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 50%; top: 60%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 10%; top: 80%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 90%; top: 70%; animation-delay: 4s;"></div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-20 backdrop-blur-lg border-b border-white border-opacity-10">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-tools text-white text-sm"></i>
+                    </div>
+                    <span class="text-xl font-bold glow-text">工具箱</span>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- 主题切换按钮 -->
+                    <button id="themeToggle" class="p-2 rounded-full bg-gray-600 bg-opacity-20 hover:bg-opacity-30 transition-all duration-300 backdrop-blur-sm border border-gray-300 border-opacity-30" title="切换主题">
+                        <i class="fas fa-moon text-gray-700" id="themeIcon"></i>
+                    </button>
+                    <a href="/" class="text-white hover:text-purple-400 transition-colors duration-300">
+                        <i class="fas fa-arrow-left mr-2"></i>返回主页
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="min-h-screen pt-20">
+        <div class="container mx-auto px-6 py-12">
+            <!-- 头部 -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl mb-6 neon-glow">
+                    <i class="fas fa-th-large text-white text-3xl"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 glow-text">
+                    <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        Tokenizer分析器
+                    </span>
+                </h1>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    对文本进行tokenizer分析，统计token数量和显示分块结果，支持多种分割模式
+                </p>
+            </div>
+
+            <!-- 工具主体 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 输入区域 -->
+                <div class="space-y-6">
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center" style="color: var(--text-primary)">
+                            <i class="fas fa-edit text-indigo-400 mr-3"></i>
+                            文本输入
+                        </h3>
+                        <textarea id="textInput" 
+                                  class="fancy-input w-full h-64 resize-none" 
+                                  placeholder="在此输入您要分析的文本...">Hello, world! This is a tokenizer example. It will split text into tokens based on different modes.</textarea>
+                        
+                        <!-- 错误信息 -->
+                        <div id="errorMessage" class="error-message">
+                            <i class="fas fa-exclamation-triangle text-red-400 mr-2"></i>
+                            <span id="errorText"></span>
+                        </div>
+                        
+                        <!-- 模式选择 -->
+                        <div class="grid grid-cols-2 gap-4 mt-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">操作模式</label>
+                                <select id="tokenMode" class="fancy-select w-full">
+                                    <option value="tokenize">Tokenize (分词)</option>
+                                    <option value="encode">Encode (编码)</option>
+                                    <option value="decode">Decode (解码)</option>
+                                </select>
+                            </div>
+                            <div id="tokenIdsDiv" style="display: none;">
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Token IDs</label>
+                                <input type="text" id="tokenIds" class="separator-input w-full" placeholder="输入Token IDs，如: 73,84,85,76">
+                            </div>
+                        </div>
+                        
+                        <!-- 控制按钮 -->
+                        <div class="grid grid-cols-2 gap-4 mt-6">
+                            <button id="analyzeBtn" 
+                                    class="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 btn-glow">
+                                <i class="fas fa-search mr-2"></i>分析
+                            </button>
+                            <button id="clearBtn" 
+                                    class="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 btn-glow">
+                                <i class="fas fa-trash mr-2"></i>清空
+                            </button>
+                            <button id="copyTokensBtn" 
+                                    class="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 btn-glow">
+                                <i class="fas fa-copy mr-2"></i>复制Tokens
+                            </button>
+                            <button id="copyIdsBtn" 
+                                    class="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 btn-glow">
+                                <i class="fas fa-code mr-2"></i>复制IDs
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 输出区域 -->
+                <div class="space-y-6">
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center" style="color: var(--text-primary)">
+                            <i class="fas fa-chart-bar text-purple-400 mr-3"></i>
+                            统计信息
+                        </h3>
+                        
+                        <!-- 统计数据 -->
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="stat-item text-center">
+                                <i class="fas fa-th text-indigo-400 mb-2"></i>
+                                <div class="text-2xl font-bold" id="tokenCount">0</div>
+                                <div class="text-sm text-gray-400">Tokens</div>
+                            </div>
+                            <div class="stat-item text-center">
+                                <i class="fas fa-font text-green-400 mb-2"></i>
+                                <div class="text-2xl font-bold" id="charCount">0</div>
+                                <div class="text-sm text-gray-400">字符</div>
+                            </div>
+                            <div class="stat-item text-center">
+                                <i class="fas fa-spell-check text-blue-400 mb-2"></i>
+                                <div class="text-2xl font-bold" id="wordCount">0</div>
+                                <div class="text-sm text-gray-400">单词</div>
+                            </div>
+                            <div class="stat-item text-center">
+                                <i class="fas fa-align-left text-yellow-400 mb-2"></i>
+                                <div class="text-2xl font-bold" id="lineCount">0</div>
+                                <div class="text-sm text-gray-400">行数</div>
+                            </div>
+                            <div class="stat-item text-center">
+                                <i class="fas fa-book text-purple-400 mb-2"></i>
+                                <div class="text-2xl font-bold" id="vocabSize">0</div>
+                                <div class="text-sm text-gray-400">词汇表</div>
+                            </div>
+                            <div class="stat-item text-center">
+                                <i class="fas fa-exclamation-triangle text-red-400 mb-2"></i>
+                                <div class="text-2xl font-bold" id="unknownCount">0</div>
+                                <div class="text-sm text-gray-400">未知词</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 当前模式和模型信息 -->
+                        <div class="text-center mb-4">
+                            <span class="text-sm text-gray-400">当前模式：</span>
+                            <span class="text-sm font-medium text-indigo-400" id="currentMode">Tokenize (分词)</span>
+                        </div>
+                        <div class="text-center mb-4">
+                            <span class="text-sm text-gray-400">模型：</span>
+                            <span class="text-sm font-medium text-green-400" id="modelName">-</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Token显示区域 -->
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center" style="color: var(--text-primary)">
+                            <i class="fas fa-tags text-pink-400 mr-3"></i>
+                            Token结果
+                        </h3>
+                        
+                        <!-- 加载动画 -->
+                        <div id="loading" class="loading">
+                            <div class="spinner"></div>
+                            <p class="text-gray-400">正在分析文本...</p>
+                        </div>
+                        
+                        <!-- Token显示 -->
+                        <div id="tokenDisplay" class="max-h-64 overflow-y-auto">
+                            <p class="text-gray-400 text-center">Tokens将显示在这里</p>
+                        </div>
+                        
+                        <!-- Token IDs显示 -->
+                        <div id="tokenIdsDisplay" class="max-h-32 overflow-y-auto mt-4" style="display: none;">
+                            <p class="text-sm text-gray-400 mb-2">Token IDs:</p>
+                            <div id="tokenIdsList" class="fancy-input p-3 font-mono text-sm">
+                                <!-- Token IDs将显示在这里 -->
+                            </div>
+                        </div>
+                        
+                        <!-- 解码结果显示 -->
+                        <div id="decodedResult" class="max-h-32 overflow-y-auto mt-4" style="display: none;">
+                            <p class="text-sm text-gray-400 mb-2">解码结果:</p>
+                            <div id="decodedText" class="fancy-input p-3">
+                                <!-- 解码文本将显示在这里 -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 使用说明 -->
+                    <div class="tool-card">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center" style="color: var(--text-primary)">
+                            <i class="fas fa-info-circle text-yellow-400 mr-3"></i>
+                            使用说明
+                        </h3>
+                        <ul class="space-y-2" style="color: var(--text-secondary)">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-400 mr-3 mt-1"></i>
+                                <span><strong>Tokenize模式</strong>：输入文本，查看分词结果和统计信息</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-400 mr-3 mt-1"></i>
+                                <span><strong>Encode模式</strong>：将文本编码为Token IDs，支持LLM标准格式</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-400 mr-3 mt-1"></i>
+                                <span><strong>Decode模式</strong>：输入Token IDs，解码为原始文本</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-400 mr-3 mt-1"></i>
+                                <span>支持复制Tokens和Token IDs，方便用于其他应用</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 通知组件 -->
+    <div id="notification" class="notification">
+        <span id="notificationText"></span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const textInput = document.getElementById('textInput');
+            const tokenMode = document.getElementById('tokenMode');
+            const tokenIdsDiv = document.getElementById('tokenIdsDiv');
+            const tokenIds = document.getElementById('tokenIds');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const copyTokensBtn = document.getElementById('copyTokensBtn');
+            const copyIdsBtn = document.getElementById('copyIdsBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            const loading = document.getElementById('loading');
+            const tokenDisplay = document.getElementById('tokenDisplay');
+            const tokenIdsDisplay = document.getElementById('tokenIdsDisplay');
+            const tokenIdsList = document.getElementById('tokenIdsList');
+            const decodedResult = document.getElementById('decodedResult');
+            const decodedText = document.getElementById('decodedText');
+            
+            // 统计元素
+            const tokenCount = document.getElementById('tokenCount');
+            const charCount = document.getElementById('charCount');
+            const wordCount = document.getElementById('wordCount');
+            const lineCount = document.getElementById('lineCount');
+            const vocabSize = document.getElementById('vocabSize');
+            const unknownCount = document.getElementById('unknownCount');
+            const currentMode = document.getElementById('currentMode');
+            const modelName = document.getElementById('modelName');
+            
+            // 模式名称映射
+            const modeNames = {
+                'tokenize': 'Tokenize (分词)',
+                'encode': 'Encode (编码)',
+                'decode': 'Decode (解码)'
+            };
+            
+            // 存储分析结果
+            let analysisResult = null;
+            
+            // 模式切换事件
+            tokenMode.addEventListener('change', function() {
+                const mode = this.value;
+                if (mode === 'decode') {
+                    tokenIdsDiv.style.display = 'block';
+                    textInput.placeholder = '解码模式不需要输入文本';
+                } else {
+                    tokenIdsDiv.style.display = 'none';
+                    textInput.placeholder = '在此输入您要分析的文本...';
+                }
+                currentMode.textContent = modeNames[mode];
+                
+                // 清空之前的结果
+                clearResults();
+            });
+            
+            // 分析按钮事件
+            analyzeBtn.addEventListener('click', function() {
+                analyzeText();
+            });
+            
+            // 清空按钮事件
+            clearBtn.addEventListener('click', function() {
+                textInput.value = '';
+                tokenDisplay.innerHTML = '<p class="text-gray-400 text-center">Tokens将显示在这里</p>';
+                resetStats();
+                analysisResult = null;
+                errorMessage.style.display = 'none';
+            });
+            
+            // 复制Tokens按钮事件
+            copyTokensBtn.addEventListener('click', function() {
+                if (!analysisResult || !analysisResult.tokens || analysisResult.tokens.length === 0) {
+                    showError('没有可复制的Tokens');
+                    return;
+                }
+                
+                const tokensText = analysisResult.tokens.join(', ');
+                copyToClipboard(tokensText);
+                showNotification('Tokens已复制到剪贴板', 'success');
+            });
+            
+            // 复制IDs按钮事件
+            copyIdsBtn.addEventListener('click', function() {
+                if (!analysisResult || !analysisResult.token_ids || analysisResult.token_ids.length === 0) {
+                    showError('没有可复制的Token IDs');
+                    return;
+                }
+                
+                const idsText = analysisResult.token_ids.join(', ');
+                copyToClipboard(idsText);
+                showNotification('Token IDs已复制到剪贴板', 'success');
+            });
+            
+            // 分析文本函数
+            async function analyzeText() {
+                const mode = tokenMode.value;
+                let requestData = { mode: mode };
+                
+                if (mode === 'decode') {
+                    const idsText = tokenIds.value.trim();
+                    if (!idsText) {
+                        showError('请输入Token IDs');
+                        return;
+                    }
+                    
+                    // 解析Token IDs
+                    const tokenIdsArray = idsText.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+                    if (tokenIdsArray.length === 0) {
+                        showError('请输入有效的Token IDs');
+                        return;
+                    }
+                    
+                    requestData.token_ids = tokenIdsArray;
+                } else {
+                    const text = textInput.value.trim();
+                    if (!text) {
+                        showError('请输入要分析的文本');
+                        return;
+                    }
+                    
+                    requestData.text = text;
+                }
+                
+                // 显示加载动画
+                loading.classList.add('show');
+                hideAllResults();
+                errorMessage.style.display = 'none';
+                
+                try {
+                    const response = await fetch('/api/tokenizer', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        if (mode === 'decode') {
+                            displayDecodeResult(result.decoded_text);
+                        } else {
+                            analysisResult = result.data;
+                            displayResults(result.data);
+                        }
+                        showNotification('分析完成', 'success');
+                    } else {
+                        showError(result.message || '分析失败');
+                    }
+                } catch (error) {
+                    showError('网络错误：' + error.message);
+                } finally {
+                    loading.classList.remove('show');
+                    // 只有在非decode模式下才调用showAppropriateResults
+                    if (mode !== 'decode') {
+                        showAppropriateResults();
+                    }
+                }
+            }
+            
+            // 显示结果函数
+            function displayResults(data) {
+                // 更新统计信息
+                tokenCount.textContent = data.token_count;
+                charCount.textContent = data.char_count;
+                wordCount.textContent = data.word_count;
+                lineCount.textContent = data.line_count;
+                vocabSize.textContent = data.vocab_size;
+                unknownCount.textContent = data.unknown_count;
+                modelName.textContent = data.model_name;
+                
+                // 显示Tokens
+                tokenDisplay.innerHTML = '';
+                if (data.tokens && data.tokens.length > 0) {
+                    data.tokens.forEach((token, index) => {
+                        const tokenId = data.token_ids && data.token_ids[index] !== undefined ? ` [${data.token_ids[index]}]` : '';
+                        const tokenTag = document.createElement('span');
+                        tokenTag.className = 'token-tag';
+                        tokenTag.textContent = token + tokenId;
+                        tokenTag.title = `Token ${index + 1}: ${token}${tokenId}`;
+                        
+                        // 添加点击高亮效果
+                        tokenTag.addEventListener('click', function() {
+                            this.classList.toggle('highlight');
+                        });
+                        
+                        tokenDisplay.appendChild(tokenTag);
+                    });
+                } else {
+                    tokenDisplay.innerHTML = '<p class="text-gray-400 text-center">没有找到Tokens</p>';
+                }
+                
+                // 显示Token IDs
+                if (data.token_ids && data.token_ids.length > 0) {
+                    tokenIdsList.textContent = data.token_ids.join(', ');
+                    tokenIdsDisplay.style.display = 'block';
+                } else {
+                    tokenIdsDisplay.style.display = 'none';
+                }
+                
+                // 隐藏解码结果
+                decodedResult.style.display = 'none';
+            }
+            
+            // 重置统计信息
+            function resetStats() {
+                tokenCount.textContent = '0';
+                charCount.textContent = '0';
+                wordCount.textContent = '0';
+                lineCount.textContent = '0';
+                vocabSize.textContent = '0';
+                unknownCount.textContent = '0';
+                modelName.textContent = '-';
+            }
+            
+            // 清空所有结果
+            function clearResults() {
+                tokenDisplay.innerHTML = '<p class="text-gray-400 text-center">Tokens将显示在这里</p>';
+                tokenIdsList.textContent = '';
+                decodedText.textContent = '';
+                resetStats();
+                analysisResult = null;
+                hideAllResults();
+            }
+            
+            // 隐藏所有结果显示区域
+            function hideAllResults() {
+                tokenDisplay.style.display = 'none';
+                tokenIdsDisplay.style.display = 'none';
+                decodedResult.style.display = 'none';
+            }
+            
+            // 显示适当的结果区域
+            function showAppropriateResults() {
+                const mode = tokenMode.value;
+                if (mode === 'decode') {
+                    decodedResult.style.display = 'block';
+                } else {
+                    tokenDisplay.style.display = 'block';
+                    if (tokenIdsList.textContent) {
+                        tokenIdsDisplay.style.display = 'block';
+                    }
+                }
+            }
+            
+            // 显示解码结果
+            function displayDecodeResult(text) {
+                decodedText.textContent = text;
+                decodedResult.style.display = 'block';
+                tokenDisplay.style.display = 'none';
+                tokenIdsDisplay.style.display = 'none';
+            }
+            
+            // 显示错误信息
+            function showError(message) {
+                errorText.textContent = message;
+                errorMessage.style.display = 'block';
+            }
+            
+            // 显示通知
+            function showNotification(message, type = 'success') {
+                notificationText.textContent = message;
+                notification.className = 'notification ' + type;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // 复制到剪贴板
+            function copyToClipboard(text) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showNotification('已复制到剪贴板', 'success');
+                }).catch(function(err) {
+                    console.error('无法复制文本: ', err);
+                    showNotification('复制失败，请手动复制', 'error');
+                });
+            }
+            
+            // 初始化
+            currentMode.textContent = modeNames[tokenMode.value];
+            tokenDisplay.style.display = 'block';
+        });
+        
+        // 主题切换功能
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const body = document.body;
+        
+        // 从本地存储加载主题设置
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            body.setAttribute('data-theme', 'light');
+            themeIcon.className = 'fas fa-sun text-yellow-400';
+        }
+        
+        // 主题切换事件
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            // 切换主题
+            body.setAttribute('data-theme', newTheme);
+            
+            // 更新图标
+            if (newTheme === 'light') {
+                themeIcon.className = 'fas fa-sun text-yellow-400';
+            } else {
+                themeIcon.className = 'fas fa-moon text-white';
+            }
+            
+            // 保存到本地存储
+            localStorage.setItem('theme', newTheme);
+        });
+    </script>
+</body>
+</html>
